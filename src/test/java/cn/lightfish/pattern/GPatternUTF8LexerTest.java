@@ -24,7 +24,7 @@ public class GPatternUTF8LexerTest {
 
     @Test
     public void init() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         Map<String, Object> map = new HashMap<>();
         recorder.load(map);
         GPatternUTF8Lexer utf8Lexer = new GPatternUTF8Lexer(recorder);
@@ -45,7 +45,7 @@ public class GPatternUTF8LexerTest {
 
     @Test
     public void init2() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         Map<String, Object> map = new HashMap<>();
         map.put("1234", "1");
         map.put("abc", "2");
@@ -74,7 +74,7 @@ public class GPatternUTF8LexerTest {
 
     @Test
     public void init3() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         Map<String, Object> map = new HashMap<>();
         map.put("1234", "1");
         map.put("abc", "2");

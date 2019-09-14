@@ -26,7 +26,7 @@ public class GPatternIdRecorderTest {
 
     @Test
     public void load() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         Map<String, Object> map = new HashMap<>();
         map.put("a", "1");
         map.put("bbb", "2");
@@ -45,7 +45,7 @@ public class GPatternIdRecorderTest {
 
     @Test(expected = GPatternException.NonASCIICharsetConstTokenException.class)
     public void load2() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         Map<String, Object> map = new HashMap<>();
         map.put("非ascii编码", "1");
         recorder.load(map);
@@ -58,7 +58,7 @@ public class GPatternIdRecorderTest {
 
     @Test(expected = GPatternException.TooLongConstTokenException.class)
     public void load3() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         Map<String, Object> map = new HashMap<>();
         String sb = IntStream.range(0, 65).mapToObj(i -> "1").collect(Collectors.joining());
         map.put(sb, "1");
@@ -67,7 +67,7 @@ public class GPatternIdRecorderTest {
 
     @Test
     public void append() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
         recorder.append('a');
         recorder.append('z');
@@ -92,7 +92,7 @@ public class GPatternIdRecorderTest {
 
     @Test(expected = GPatternException.TooLongConstTokenException.class)
     public void append1() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
         IntStream.range(0, 65).mapToObj(i -> '1').forEach(recorder::append);
         recorder.endRecordTokenChar(65);
@@ -101,7 +101,7 @@ public class GPatternIdRecorderTest {
 
     @Test(expected = GPatternException.TooLongConstTokenException.class)
     public void append2() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
         IntStream.range(0, 65).mapToObj(i -> '1').forEach(recorder::append);
         recorder.endRecordTokenChar(65);
@@ -110,7 +110,7 @@ public class GPatternIdRecorderTest {
 
     @Test
     public void append3() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
         IntStream.range(0, 66).mapToObj(i -> '哈').forEach(recorder::append);
         recorder.endRecordTokenChar(66);
@@ -123,7 +123,7 @@ public class GPatternIdRecorderTest {
 
     @Test
     public void append4() {
-        GPatternIdRecorder recorder = new GPatternIdRecorder.GPatternIdRecorderImpl(false);
+        GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
         IntStream.range(0, 66).mapToObj(i -> '哈').forEach(recorder::append);
         recorder.endRecordTokenChar(66);
