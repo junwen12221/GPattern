@@ -1,14 +1,14 @@
 /**
  * Copyright (C) <2019>  <chen junwen>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
@@ -23,7 +23,9 @@ public interface GPatternDFG {
 
     GPatternMatcher getMatcher();
 
-    class DFGImpl implements GPatternDFG {
+    Map<String, GPatternPosition> getVariables();
+
+    final class DFGImpl implements GPatternDFG {
         private final State rootState = new State(0);
         private final Map<String, GPatternPosition> variables = new HashMap<>();
         int identifierGenerator = 0;
@@ -71,11 +73,11 @@ public interface GPatternDFG {
                 }
             }
             int i = identifierGenerator++;
-            if (lastState != null && lastState.name != null && state.name == null && state.success == null && state.matcher == null) {
+            if (lastState != null && lastState.name != null && state.name == null && state.success.isEmpty() && state.matcher == null) {
                 state.end(i);
                 state = lastState;
             }
-            if (!state.isEnd()){
+            if (!state.isEnd()) {
                 state.end(i);
             }
             return i;
@@ -83,13 +85,18 @@ public interface GPatternDFG {
 
         @Override
         public GPatternMatcher getMatcher() {
-            return new MatcherImpl(rootState);
+            return new MatcherImpl(this);
+        }
+
+        @Override
+        public Map<String, GPatternPosition> getVariables() {
+            return variables;
         }
 
         public static class State {
             final int depth;
             private String name;
-            private HashMap<GPatternSeq, State> success;
+            private final HashMap<GPatternSeq, State> success = new HashMap<>();
             private State matcher;
             private int id = Integer.MIN_VALUE;
             private boolean end = false;
@@ -99,7 +106,6 @@ public interface GPatternDFG {
             }
 
             public State addState(GPatternSeq next) {
-                if (success == null) success = new HashMap<>();
                 if (success.containsKey(next)) {
                     return success.get(next);
                 } else {
@@ -120,7 +126,7 @@ public interface GPatternDFG {
             }
 
             public State accept(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
-                if (success != null) {
+                if (!success.isEmpty()) {
                     State state = success.get(token);
                     if (state != null) {
                         return state;
@@ -152,13 +158,14 @@ public interface GPatternDFG {
         }
     }
 
-    public class MatcherImpl implements GPatternMatcher {
+    public final class MatcherImpl implements GPatternMatcher {
         private final DFGImpl.State rootState;
-        private final GPositionRecorder context = new GPositionRecorder();
+        private final GPositionRecorder context;
         private DFGImpl.State state;
 
-        public MatcherImpl(DFGImpl.State state) {
-            this.rootState = state;
+        public MatcherImpl(DFGImpl dfg) {
+            this.rootState = dfg.rootState;
+           this .context= new GPositionRecorder(dfg.variables);
         }
 
         public boolean accept(GPatternSeq token) {
@@ -187,7 +194,6 @@ public interface GPatternDFG {
         @Override
         public void reset() {
             this.state = rootState;
-            this.context.map.clear();
             this.context.name = null;
             this.context.currentPosition = null;
         }

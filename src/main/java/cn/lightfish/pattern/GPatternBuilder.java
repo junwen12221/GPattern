@@ -34,7 +34,7 @@ public class GPatternBuilder {
     }
 
     public GPatternBuilder(int identifierGenerator, Map<String, Object> keywords) {
-        this.idRecorder = new GPatternIdRecorder.GPatternIdRecorderImpl(true);
+        this.idRecorder = new GPatternIdRecorderImpl(true);
         this.idRecorder.load(keywords);
         this.utf8Lexer = new GPatternUTF8Lexer(idRecorder);
         this.dfg = new GPatternDFG.DFGImpl(identifierGenerator);

@@ -1,14 +1,14 @@
 /**
  * Copyright (C) <2019>  <chen junwen>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
@@ -27,7 +27,8 @@ public class GPattern {
     private final GPatternUTF8Lexer utf8Lexer;
     private final GPatternMatcher matcher;
     private static final Logger LOGGER = LoggerFactory.getLogger(GPattern.class);
-    private static final boolean DEBUG_ENABLED = LOGGER.isDebugEnabled();
+    private static final boolean DEBUG_ENABLED =
+            false;
 
     public GPattern(GPatternDFG dfg, GPatternIdRecorder copyRecorder) {
         this.idRecorder = copyRecorder;
@@ -61,6 +62,9 @@ public class GPattern {
         Map<String, String> res = new HashMap<>();
         for (Map.Entry<String, GPatternPosition> entry : matcher.context().entrySet()) {
             GPatternPosition value = entry.getValue();
+            if (value.end < 0) {
+                continue;
+            }
             res.put(entry.getKey(), utf8Lexer.getString(value.start, value.end));
         }
         return res;
