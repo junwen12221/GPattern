@@ -13,13 +13,13 @@ public class BenchMark2 {
 
         public int iterations;
 
-        public static final ByteBuffer password = StandardCharsets.UTF_8.encode("select id from travelrecord where user_id = 1;select id from travelrecord where user_id = 1;select id from travelrecord where user_id = 1;");
+        public static final ByteBuffer password = StandardCharsets.UTF_8.encode("SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`));");
         private static final GPattern pattern;
 
         static {
             GPatternBuilder builder = new GPatternBuilder(0);
-            int i = builder.addRule("select id from travelrecord where user_id = 1;select id from travelrecord where user_id = 1;select id from travelrecord where user_id = {1};");
-            int i2 = builder.addRule("select id from travelrecord where jjjj");
+            int i = builder.addRule("SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`));");
+            int i2 = builder.addRule("select id from travelrecord where");
             pattern =  builder.createGroupPattern();
         }
 

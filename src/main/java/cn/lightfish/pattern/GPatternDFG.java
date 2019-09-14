@@ -73,12 +73,20 @@ public interface GPatternDFG {
                 }
             }
             int i = identifierGenerator++;
+
             if (lastState != null && lastState.name != null && state.name == null && state.success.isEmpty() && state.matcher == null) {
                 state.end(i);
                 state = lastState;
             }
             if (!state.isEnd()) {
                 state.end(i);
+            }
+            ////优化
+            if (state.success.size()==1){
+                Map.Entry<GPatternSeq, State> next = state.success.entrySet().iterator().next();
+                state.nextToken = next.getKey();
+                state.nextState  = next.getValue();
+                state.success.clear();
             }
             return i;
         }
@@ -95,6 +103,8 @@ public interface GPatternDFG {
 
         public static class State {
             final int depth;
+            public GPatternSeq nextToken;
+            public State nextState;
             private String name;
             private final HashMap<GPatternSeq, State> success = new HashMap<>();
             private State matcher;
@@ -126,6 +136,11 @@ public interface GPatternDFG {
             }
 
             public State accept(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
+                if (nextToken !=null){
+                    if(nextToken .equals(token)){
+                        return nextState;
+                    }
+                }
                 if (!success.isEmpty()) {
                     State state = success.get(token);
                     if (state != null) {
