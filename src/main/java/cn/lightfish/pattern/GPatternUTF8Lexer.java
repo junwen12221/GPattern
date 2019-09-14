@@ -141,11 +141,9 @@ public class GPatternUTF8Lexer {
 
     public int nextChar() {
         if (!hasChar()) return END;
-        int aByte = Byte.toUnsignedInt(buffer.get(position));
-        if (aByte <= 0x007F) {
-            position += 1;
-            return aByte;
-        } else {
+        int aByte = buffer.get(position);
+        if (aByte < 0) {//0x007F
+            aByte = Byte.toUnsignedInt((byte) aByte);
             if (aByte <= 0x07FF) {
                 position += 3;
             } else if (aByte <= 0xFFFF) {
@@ -158,6 +156,9 @@ public class GPatternUTF8Lexer {
                 position += 7;
             }
             return DEMO;
+        } else {
+            position += 1;
+            return aByte;
         }
     }
 
