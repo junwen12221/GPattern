@@ -1,10 +1,8 @@
 package cn.lightfish.pattern;
 
-import com.alibaba.fastsql.util.FnvHash;
 import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
 
-import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,10 +11,10 @@ import java.util.Set;
 
 public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
     final static int WORD_LENGTH = 64;
-    final LongObjectHashMap<GPatternToken> longTokenHashMap = LongObjectHashMap.newMap();
+    final IntObjectHashMap<GPatternToken> longTokenHashMap = IntObjectHashMap.newMap();
     final Map<String, GPatternToken> tokenMap = new HashMap<>();
-    public final static long BASIC = 0xcbf29ce484222325L;
-    public final static long PRIME = 0x100000001b3L;
+    public final static int BASIC = 0x811c9dc5;
+    public final static int PRIME = 0x01000193;
     final GPatternToken tmp = new GPatternToken(0, 0,null, null);
     private GPatternUTF8Lexer lexer;
 
@@ -70,14 +68,14 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
     @Override
     public final void append(int b) {
         int hash = tmp.hash;
-//        hash^= b;
-        hash  =hash* 31+b;
+        hash ^= b;
+        hash *= PRIME;
         tmp.hash = hash;
     }
 
     @Override
     public void startRecordTokenChar(int startOffset) {
-        tmp.hash = 0;
+        tmp.hash = BASIC;
         tmp.startOffset = startOffset;
     }
 
@@ -85,7 +83,6 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
     public void endRecordTokenChar(int endOffset) {
         tmp.endOffset = endOffset;
         tmp.length = endOffset - tmp.startOffset;
-
     }
 
 //    @Override
@@ -118,13 +115,13 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
         if (input == null) {
             return 0;
         }
-
-        int hash = 0;
+        long hash = BASIC;
         for (int i = 0; i < input.length(); ++i) {
             char c = input.charAt(i);
-            hash = hash*31+c;
+            hash ^= c;
+            hash *= PRIME;
         }
-        return hash;
+        return (int) hash;
     }
     public GPatternToken toCurToken() {
         return tmp;

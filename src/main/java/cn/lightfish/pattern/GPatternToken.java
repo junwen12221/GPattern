@@ -55,20 +55,19 @@ public final class GPatternToken implements Cloneable, GPatternSeq {
     }
 
     @Override
-    public long longHashCode() {
-        return hash;
-    }
-
-
-    @Override
     public boolean equals(Object oo) {
         GPatternToken o = (GPatternToken) oo;
-        return this.length == o.length && lexer.equals(startOffset, endOffset, o.symbol);
+        return lexer.equals(startOffset, endOffset, o.symbol);
+    }
+
+    @Override
+    public boolean equalsLength(GPatternToken oo) {
+        return this.length == oo.length;
     }
 
     @Override
     public int hashCode() {
-        return (int) hash;
+        return hash;
     }
 
     @Override

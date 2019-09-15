@@ -14,6 +14,7 @@
  */
 package cn.lightfish.pattern;
 
+import com.google.common.collect.Maps;
 import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
 import org.jetbrains.annotations.NotNull;
@@ -48,6 +49,7 @@ public interface GPatternDFG {
             State lastState = null;
             String lastName = null;
             GPatternSeq nextToken = null;
+            State nextState = null;
             for (; format.hasNext(); ) {
                 lastState = state;
                 GPatternSeq token = format.next();
@@ -75,6 +77,7 @@ public interface GPatternDFG {
                 } else {
                     state = state.addState(token);
                     nextToken = token;
+                    nextState = state;
                     lastName = null;
                 }
             }
@@ -90,8 +93,7 @@ public interface GPatternDFG {
             ////优化
             if (state.success.size() == 1 && nextToken != null) {
                 state.nextToken = nextToken;
-                state.nextState = state.success.getFirst();
-                state.success.clear();
+                state.nextState = nextState;
             }
             return i;
         }
@@ -141,11 +143,11 @@ public interface GPatternDFG {
             }
 
             public State accept(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
-                if (nextToken != null) {
-                    if (token.equals(nextToken)) {
-                        return nextState;
-                    }
-                }
+//                if (nextToken != null) {
+//                    if (token.equals(nextToken)) {
+//                        return nextState;
+//                    }
+//                }
                 if (!success.isEmpty()) {
                     State state = success.get(token.hashCode());
                     if (state != null) {
