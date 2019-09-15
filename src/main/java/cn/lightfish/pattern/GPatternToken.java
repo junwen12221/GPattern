@@ -20,32 +20,28 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 @ToString
-public class GPatternToken implements Cloneable, GPatternSeq {
+public final class GPatternToken implements Cloneable, GPatternSeq {
     int hash;
-    byte[] symbol;
-    final String symbolText;
-    Object attr;
     int startOffset = -1;
     int endOffset = -1;
+    int length;
+    final String symbolText;
+    final byte[] symbol;
     GPatternUTF8Lexer lexer;
 
-    public GPatternToken(int hash, String symbolText, Object attr) {
+    public GPatternToken(int hash, int length, String symbolText, GPatternUTF8Lexer lexer) {
         this.hash = hash;
+        this.length = length;
         this.symbolText = symbolText;
-        if (this.symbolText != null) {
-            this.symbol = symbolText.getBytes(StandardCharsets.UTF_8);
-        }
-        this.attr = attr;
+        this.symbol = this.symbolText != null ? symbolText.getBytes(StandardCharsets.UTF_8) : null;
+        this.lexer = lexer;
     }
 
     public String getSymbol() throws NullPointerException {
         if (symbolText != null) {
             return symbolText;
         }
-        if (lexer != null) {
-            return lexer.getString(startOffset, endOffset);
-        }
-        return null;
+        return lexer.getString(startOffset, endOffset);
     }
 
     @Override
@@ -59,29 +55,36 @@ public class GPatternToken implements Cloneable, GPatternSeq {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        GPatternToken token = (GPatternToken) o;
-        if (hash != token.hash) return false;
-        return symbol != null ? Arrays.equals(symbol, token.symbol) : token.symbol == null;
+    public long longHashCode() {
+        return hash;
+    }
+
+
+    @Override
+    public boolean equals(Object oo) {
+        GPatternToken o = (GPatternToken) oo;
+        return this.length == o.length && lexer.equals(startOffset, endOffset, o.symbol);
     }
 
     @Override
     public int hashCode() {
-        return hash;
+        return (int) hash;
     }
 
     @Override
-    protected GPatternToken clone() throws CloneNotSupportedException {
+    public GPatternToken clone() throws CloneNotSupportedException {
         return (GPatternToken) super.clone();
     }
 
-    public void setLexer(GPatternUTF8Lexer lexer) {
-        this.lexer = lexer;
-    }
-
-    public <T> T getAttr() {
-        return (T) attr;
+    @Override
+    public String toString() {
+        return "GPatternToken{" +
+                "hash=" + hash +
+                ", startOffset=" + startOffset +
+                ", endOffset=" + endOffset +
+                ", symbolText='" + symbolText + '\'' +
+                ", symbol=" + Arrays.toString(symbol) +
+                ", lexer=" + lexer +
+                '}';
     }
 }

@@ -22,11 +22,11 @@ public class GPatternUTF8Lexer {
     int limit = 0;
     int position = 0;
     private final GPatternIdRecorder idRecorder;
-    public static final byte DEMO = Byte.MIN_VALUE;
-    public static final byte END = Byte.MAX_VALUE;
+    public static final int DEMO = 128;
 
     public GPatternUTF8Lexer(GPatternIdRecorder idRecorder) {
         this.idRecorder = idRecorder;
+        this.idRecorder.setLexer(this);
     }
 
     public void init(String text) {
@@ -34,39 +34,141 @@ public class GPatternUTF8Lexer {
         init(byteBuffer, 0, byteBuffer.limit());
     }
 
-    public void init(ByteBuffer buffer, int startOffset, int length) {
+    public void init(ByteBuffer buffer, int startOffset, int limit) {
         this.buffer = buffer;
         this.position = startOffset;
-        this.limit = startOffset + length;
-        this.idRecorder.startRecordTokenChar(position);
+        this.limit = limit;
     }
 
     public boolean nextToken() {
-        skipIgnore();
-        if (!hasChar()) return false;
-        idRecorder.startRecordTokenChar(position);
-        int c = nextChar();
-        char cc = (char) c;
-        if (c == '`' || c == '\'') {
-            idRecorder.append(c);
-            pickTo(c);
+        for (; position < limit; ) {
+            int startPos = position;
+            int b;
+            byte handler = HANDLER[b = nextChar()];
+            char c = (char) b;
+            switch (handler) {
+                case ID_HANDLER: {
+                    return idHanlder(startPos, b);
+                }
+                case BLANK_SPACE_HANDLER: {
+                    continue;
+                }
+                case KEYWORD_HANDLER:
+                case STRING_HANLDER: {
+                    return stringHandler(startPos, b);
+                }
+                case LEFT_SLASH_HANDLER: {
+                    if (leftSlashHanlder()) continue;
+                    return singleChar(startPos, b);
+                }
+                case DASH_HANDLER: {
+                    if (dashHandler()) continue;
+                    // return singleChar(startPos, b);
+                }
+                default:
+                    return singleChar(startPos, b);
+            }
+        }
+        return false;
+    }
+
+    private boolean leftSlashHanlder() {
+        int c = peekAsciiChar(0);
+        if (c == '*') {
+            skipMultiComment();
+            return true;
+        } else if (c == '/') {
+            skipSingleComment();
             return true;
         }
-        boolean id = false;
-        while (hasChar() && (Character.isLetterOrDigit(c) || c == '_' || c == '$')) {
-            idRecorder.append(c);
-            c = nextChar();
-            id = true;
+        return false;
+    }
+
+    private boolean idHanlder(int startPos, int b) {
+        idRecorder.startRecordTokenChar(startPos);
+        idRecorder.append(b);
+        while (hasChar()) {
+            int backup = position;
+            b = nextChar();
+            if (isIdChar(b)) {
+                idRecorder.append(b);
+            } else {
+                position = backup;
+                break;
+            }
         }
-        if (id) {
-            --position;
-            idRecorder.endRecordTokenChar(position);
-            return true;
-        } else {
-            idRecorder.append(c);
-            idRecorder.endRecordTokenChar(position);
+        idRecorder.endRecordTokenChar(position);
+        return true;
+    }
+
+    private boolean stringHandler(int startPos, int b) {
+        idRecorder.startRecordTokenChar(startPos);
+        idRecorder.append(b);
+        pickTo(b);
+        return true;
+    }
+
+    private boolean dashHandler() {
+        if (peekAsciiChar(0) == '-') {
+            skipSingleComment();
             return true;
         }
+        return false;
+    }
+
+    private void skipMultiComment() {
+        position += 1;
+        for (; hasChar(); ) {
+            if ('*' == peekAsciiChar(0) && '/' == peekAsciiChar(1)) {
+                position += 2;
+                break;
+            }
+            ++position;
+        }
+    }
+
+    private boolean singleChar(int startPos, int b) {
+        char c = (char) b;
+        idRecorder.startRecordTokenChar(startPos);
+        idRecorder.append(b);
+        idRecorder.endRecordTokenChar(position);
+        return true;
+    }
+
+    final static byte[] HANDLER = new byte[129];
+    final static int KEYWORD_HANDLER = 7;
+    final static int ID_HANDLER = 1;
+    final static int BLANK_SPACE_HANDLER = 2;
+    final static int STRING_HANLDER = 3;
+    final static int LEFT_SLASH_HANDLER = 4;
+    final static int DASH_HANDLER = 5;
+    final static int SHARP_HANLDER = 6;
+
+    static {
+        for (int i = '0'; i <= '9'; i++) {
+            HANDLER[i] = ID_HANDLER;
+        }
+        for (int i = 'A'; i <= 'Z'; i++) {
+            HANDLER[i] = ID_HANDLER;
+        }
+        for (int c = 'a'; c <= 'z'; c++) {
+            HANDLER[c] = ID_HANDLER;
+        }
+        HANDLER['`'] = KEYWORD_HANDLER;
+        HANDLER['_'] = ID_HANDLER;
+        HANDLER['$'] = ID_HANDLER;
+        HANDLER[DEMO] = ID_HANDLER;
+
+        HANDLER[' '] = BLANK_SPACE_HANDLER;
+        HANDLER['#'] = SHARP_HANLDER;
+        HANDLER['\''] = STRING_HANLDER;
+        HANDLER['\"'] = STRING_HANLDER;
+        HANDLER['/'] = LEFT_SLASH_HANDLER;
+        HANDLER['-'] = DASH_HANDLER;
+    }
+
+    private boolean isIdChar(int c) {
+        return HANDLER[c] == ID_HANDLER;
     }
 
     private void pickTo(final int t) {
@@ -82,48 +184,11 @@ public class GPatternUTF8Lexer {
         } while (hasChar());
     }
 
-    private void skipIgnore() {
-        while (hasChar()) {
-            byte b = buffer.get(position);
-            if (b == ' ') {
-                ++position;
-                continue;
-            } else if (b == '#') {
-                position += 1;
-                skipSingleComment();
-                continue;
-            } else if (b == '/') {
-                if (peekChar(1) == '*') {
-                    position += 2;
-                    for (; hasChar(); ) {
-                        if ('*' == peekChar(0) && '/' == peekChar(1)) {
-                            position += 2;
-                            break;
-                        }
-                        ++position;
-                    }
-                    continue;
-                } else if (peekChar(1) == '/') {
-                    position += 2;
-                    skipSingleComment();
-                    continue;
-                } else {
-                    break;
-                }
-            } else if (b == '-' && peekChar(1) == '-') {
-                position += 2;
-                skipSingleComment();
-                continue;
-            } else {
-                break;
-            }
-        }
-    }
-
     private void skipSingleComment() {
+        position += 1;
         for (; hasChar(); ) {
-            if ('\n' == peekChar(1)) {
-                position += 2;
+            if ('\n' == peekAsciiChar(0)) {
+                ++position;
                 break;
             }
             ++position;
@@ -134,13 +199,12 @@ public class GPatternUTF8Lexer {
         return position < limit;
     }
 
-    public int peekChar(int step) {
+    public int peekAsciiChar(int step) {
         int ex = position + step;
-        return (ex < limit) ? Byte.toUnsignedInt(buffer.get(ex)) : END;
+        return buffer.get(ex);
     }
 
     public int nextChar() {
-        if (!hasChar()) return END;
         int aByte = buffer.get(position);
         if (aByte < 0) {//0x007F
             aByte = Byte.toUnsignedInt((byte) aByte);
@@ -173,5 +237,14 @@ public class GPatternUTF8Lexer {
             bytes[i] = buffer.get(start);
         }
         return new String(bytes, StandardCharsets.UTF_8);
+    }
+
+    public boolean equals(int startOffset, int endOffset, byte[] symbol) {
+        for (int i = startOffset+2, j = 2; i < endOffset && j < symbol.length; i++, j++) {
+            if (buffer.get(i) != symbol[j]) {
+                return false;
+            }
+        }
+        return true;
     }
 }

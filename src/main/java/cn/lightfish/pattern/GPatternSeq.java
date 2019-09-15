@@ -20,4 +20,6 @@ public interface GPatternSeq {
     int getStartOffset();
 
     int getEndOffset();
+
+    long longHashCode();
 }

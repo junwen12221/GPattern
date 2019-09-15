@@ -19,6 +19,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 public class GPatternBuilder {
     private final GPatternIdRecorder idRecorder;
@@ -30,10 +31,10 @@ public class GPatternBuilder {
     }
 
     public GPatternBuilder(int identifierGenerator) {
-        this(identifierGenerator, Collections.emptyMap());
+        this(identifierGenerator, Collections.emptySet());
     }
 
-    public GPatternBuilder(int identifierGenerator, Map<String, Object> keywords) {
+    public GPatternBuilder(int identifierGenerator, Set<String> keywords) {
         this.idRecorder = new GPatternIdRecorderImpl(true);
         this.idRecorder.load(keywords);
         this.utf8Lexer = new GPatternUTF8Lexer(idRecorder);
@@ -58,7 +59,8 @@ public class GPatternBuilder {
 
             @Override
             public GPatternSeq next() {
-                return idRecorder.createConstToken(null);
+                String curTokenString = utf8Lexer.getCurTokenString();
+                return idRecorder.createConstToken(curTokenString);
             }
         });
     }

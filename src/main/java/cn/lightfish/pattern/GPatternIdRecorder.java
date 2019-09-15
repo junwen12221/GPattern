@@ -18,6 +18,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 public interface GPatternIdRecorder {
     void startRecordTokenChar(int startOffset);
@@ -25,16 +26,18 @@ public interface GPatternIdRecorder {
     void append(int c);
 
     void endRecordTokenChar(int endOffset);
-
-    GPatternToken createConstToken(Object o);
+//    void rangeRecordTokenChar(int startOfffset,int endOffset);
+    public GPatternToken createConstToken(String keywordText);
 
     GPatternToken toCurToken();
 
     GPatternIdRecorder createCopyRecorder();
 
-    public void load(Map<String, Object> map);
+    public void load(Set<String> set);
 
     GPatternToken getConstToken(String a);
+
+    void setLexer(GPatternUTF8Lexer lexer);
 
 
 }

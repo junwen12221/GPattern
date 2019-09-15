@@ -69,4 +69,31 @@ public class GPattern {
         }
         return res;
     }
+
+    /**
+     * Getter for property 'idRecorder'.
+     *
+     * @return Value for property 'idRecorder'.
+     */
+    public GPatternIdRecorder getIdRecorder() {
+        return idRecorder;
+    }
+
+    /**
+     * Getter for property 'utf8Lexer'.
+     *
+     * @return Value for property 'utf8Lexer'.
+     */
+    public GPatternUTF8Lexer getUtf8Lexer() {
+        return utf8Lexer;
+    }
+
+    /**
+     * Getter for property 'matcher'.
+     *
+     * @return Value for property 'matcher'.
+     */
+    public GPatternMatcher getMatcher() {
+        return matcher;
+    }
 }

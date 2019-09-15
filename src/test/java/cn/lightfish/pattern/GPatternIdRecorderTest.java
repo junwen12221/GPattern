@@ -18,7 +18,9 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,41 +29,37 @@ public class GPatternIdRecorderTest {
     @Test
     public void load() {
         GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
-        Map<String, Object> map = new HashMap<>();
-        map.put("a", "1");
-        map.put("bbb", "2");
+        Set<String> map = new HashSet<>();
+        map.add("a");
+        map.add("bbb");
         recorder.load(map);
         GPatternToken a = recorder.getConstToken("a");
         Assert.assertNotNull(a);
         Assert.assertEquals("a", a.getSymbol());
-        Assert.assertEquals("1", a.getAttr());
 
         GPatternIdRecorder copyRecorder = recorder.createCopyRecorder();
         GPatternToken bbb = copyRecorder.getConstToken("bbb");
         Assert.assertNotNull(bbb);
         Assert.assertEquals("bbb", bbb.getSymbol());
-        Assert.assertEquals("2", bbb.getAttr());
     }
 
     @Test(expected = GPatternException.NonASCIICharsetConstTokenException.class)
     public void load2() {
         GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
-        Map<String, Object> map = new HashMap<>();
-        map.put("非ascii编码", "1");
+        Set<String> map = new HashSet<>();
+        map.add("非ascii编码");
         recorder.load(map);
         GPatternToken a = recorder.getConstToken("非ascii编码");
         Assert.assertNotNull(a);
         Assert.assertEquals("a", a.getSymbol());
-        Assert.assertEquals("1", a.getAttr());
-
     }
 
     @Test(expected = GPatternException.TooLongConstTokenException.class)
     public void load3() {
         GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
-        Map<String, Object> map = new HashMap<>();
+        Set<String> map = new HashSet<>();
         String sb = IntStream.range(0, 65).mapToObj(i -> "1").collect(Collectors.joining());
-        map.put(sb, "1");
+        map.add(sb);
         recorder.load(map);
     }
 
@@ -72,11 +70,10 @@ public class GPatternIdRecorderTest {
         recorder.append('a');
         recorder.append('z');
         recorder.endRecordTokenChar(2);
-        GPatternToken token = recorder.createConstToken("1");
+        GPatternToken token = recorder.createConstToken("az");
 
         Assert.assertNotNull(token);
         Assert.assertEquals("az", token.getSymbol());
-        Assert.assertEquals("1", token.getAttr());
 
         recorder.startRecordTokenChar(1);
         recorder.append('a');
@@ -84,8 +81,6 @@ public class GPatternIdRecorderTest {
         recorder.endRecordTokenChar(3);
 
         GPatternToken curToken = recorder.toCurToken();
-        Assert.assertEquals(token, curToken);
-        Assert.assertEquals("1", curToken.getAttr());
         Assert.assertEquals(1, curToken.getStartOffset());
         Assert.assertEquals(3, curToken.getEndOffset());
     }
@@ -94,18 +89,20 @@ public class GPatternIdRecorderTest {
     public void append1() {
         GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
-        IntStream.range(0, 65).mapToObj(i -> '1').forEach(recorder::append);
+        String collect = IntStream.range(0, 65).mapToObj(i -> "1").collect(Collectors.joining());
+        for (byte aByte : collect.getBytes()) recorder.append(aByte);
         recorder.endRecordTokenChar(65);
-        GPatternToken token = recorder.createConstToken("1");
+        GPatternToken token = recorder.createConstToken(collect);
     }
 
     @Test(expected = GPatternException.TooLongConstTokenException.class)
     public void append2() {
         GPatternIdRecorder recorder = new GPatternIdRecorderImpl(false);
         recorder.startRecordTokenChar(0);
-        IntStream.range(0, 65).mapToObj(i -> '1').forEach(recorder::append);
+        String collect = IntStream.range(0, 65).mapToObj(i -> "1").collect(Collectors.joining());
+        for (byte aByte : collect.getBytes()) recorder.append(aByte);
         recorder.endRecordTokenChar(65);
-        GPatternToken token = recorder.createConstToken("1");
+        GPatternToken token = recorder.createConstToken(collect);
     }
 
     @Test
