@@ -14,9 +14,7 @@
  */
 package cn.lightfish.pattern;
 
-import com.google.common.collect.Maps;
-import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
-import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -94,6 +92,7 @@ public interface GPatternDFG {
             if (state.success.size() == 1 && nextToken != null) {
                 state.nextToken = nextToken;
                 state.nextState = nextState;
+                state.success.clear();
             }
             return i;
         }
@@ -113,7 +112,7 @@ public interface GPatternDFG {
             public GPatternSeq nextToken;
             public State nextState;
             private String name;
-            private final IntObjectHashMap<State> success = IntObjectHashMap.newMap();
+            private final Object2ObjectOpenHashMap<GPatternSeq, State> success = new Object2ObjectOpenHashMap<>(256, 1.0f);
             private State matcher;
             private int id = Integer.MIN_VALUE;
             private boolean end = false;
@@ -123,11 +122,11 @@ public interface GPatternDFG {
             }
 
             public State addState(GPatternSeq next) {
-                if (success.containsKey(next.hashCode())) {
-                    return success.get(next.hashCode());
+                if (success.containsKey(next)) {
+                    return success.get(next);
                 } else {
                     State state = new State(depth + 1);
-                    success.put(next.hashCode(), state);
+                    success.put(next, state);
                     return state;
                 }
             }
@@ -143,13 +142,13 @@ public interface GPatternDFG {
             }
 
             public State accept(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
-//                if (nextToken != null) {
-//                    if (token.equals(nextToken)) {
-//                        return nextState;
-//                    }
-//                }
+                if (nextToken != null) {
+                    if (token.equals(nextToken)) {
+                        return nextState;
+                    }
+                }
                 if (!success.isEmpty()) {
-                    State state = success.get(token.hashCode());
+                    State state = success.get(token);
                     if (state != null) {
                         return state;
                     }
@@ -185,7 +184,7 @@ public interface GPatternDFG {
         }
     }
 
-    public final class MatcherImpl implements GPatternMatcher {
+    final class MatcherImpl implements GPatternMatcher {
         private final DFGImpl.State rootState;
         private final GPositionRecorder context;
         private DFGImpl.State state;

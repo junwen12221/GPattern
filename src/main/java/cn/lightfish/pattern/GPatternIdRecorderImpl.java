@@ -1,7 +1,6 @@
 package cn.lightfish.pattern;
 
 import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
-import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
 
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
@@ -15,7 +14,7 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
     final Map<String, GPatternToken> tokenMap = new HashMap<>();
     public final static int BASIC = 0x811c9dc5;
     public final static int PRIME = 0x01000193;
-    final GPatternToken tmp = new GPatternToken(0, 0,null, null);
+    final GPatternToken tmp = new GPatternToken(0, 0, null, null);
     private GPatternUTF8Lexer lexer;
 
     public GPatternIdRecorderImpl(boolean debug) {
@@ -65,12 +64,16 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
         tokenMap.put(keyword, token);
     }
 
-    @Override
-    public final void append(int b) {
-        int hash = tmp.hash;
-        hash ^= b;
-        hash *= PRIME;
-        tmp.hash = hash;
+    private static int fnv1a_32(byte[] input) {
+        if (input == null) {
+            return 0;
+        }
+        long hash = BASIC;
+        for (byte c : input) {
+            hash ^= c & 0xff;
+            hash *= PRIME;
+        }
+        return (int) hash;
     }
 
     @Override
@@ -95,9 +98,17 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
 //        endRecordTokenChar(endOffset);
 //    }
 
+    @Override
+    public final void append(int b) {
+        int hash = tmp.hash;
+        hash ^= b & 0xff;
+        hash *= PRIME;
+        tmp.hash = hash;
+    }
+
     public GPatternToken createConstToken(String keywordText) {
-        int hash = fnv1a_64(keywordText);
         byte[] words = keywordText.getBytes(StandardCharsets.UTF_8);
+        int hash = fnv1a_32(words);
         if (words.length > WORD_LENGTH) throw new GPatternException.TooLongConstTokenException("{0}", keywordText);
         GPatternToken keyword = longTokenHashMap.get(hash);
         if (keyword != null) {
@@ -106,23 +117,12 @@ public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
             for (byte word : words) {
                 if (0 > word) throw new GPatternException.NonASCIICharsetConstTokenException("{0}", keywordText);
             }
-            GPatternToken token = new GPatternToken(hash,words.length, keywordText, lexer);
+            GPatternToken token = new GPatternToken(hash, words.length, keywordText, lexer);
             addToken(keywordText, token);
             return token;
         }
     }
-    public static int fnv1a_64(String input) {
-        if (input == null) {
-            return 0;
-        }
-        long hash = BASIC;
-        for (int i = 0; i < input.length(); ++i) {
-            char c = input.charAt(i);
-            hash ^= c;
-            hash *= PRIME;
-        }
-        return (int) hash;
-    }
+
     public GPatternToken toCurToken() {
         return tmp;
     }

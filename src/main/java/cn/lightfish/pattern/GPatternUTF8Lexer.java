@@ -1,5 +1,6 @@
 package cn.lightfish.pattern;
 
+
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
@@ -240,8 +241,27 @@ public class GPatternUTF8Lexer {
     }
 
     public boolean equals(int startOffset, int endOffset, byte[] symbol) {
-        for (int i = startOffset, j = 0; i < endOffset && j < symbol.length; i++, j++) {
+        if (buffer.hasArray()) {
+            byte[] array = buffer.array();
+            return arrayEquals(startOffset, endOffset, symbol, array);
+        } else {
+            return directEquals(startOffset, endOffset, symbol);
+        }
+
+    }
+
+    private boolean directEquals(int startOffset, int endOffset, byte[] symbol) {
+        for (int i = startOffset + 8, j = 8; i < endOffset; i++, j++) {
             if (buffer.get(i) != symbol[j]) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean arrayEquals(int startOffset, int endOffset, byte[] symbol, byte[] array) {
+        for (int i = startOffset + 8, j = 8; i < endOffset; i++, j++) {
+            if (array[i] != symbol[j]) {
                 return false;
             }
         }
