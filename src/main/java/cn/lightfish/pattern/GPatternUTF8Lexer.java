@@ -251,8 +251,9 @@ public class GPatternUTF8Lexer {
     }
 
     private boolean directEquals(int startOffset, int endOffset, byte[] symbol) {
-        for (int i = startOffset + 8, j = 8; i < endOffset; i++, j++) {
-            if (buffer.get(i) != symbol[j]) {
+        int length = symbol.length;
+        for (int j = 4; j < length; j++) {
+            if (buffer.get(startOffset + j) != symbol[j]) {
                 return false;
             }
         }
@@ -260,8 +261,9 @@ public class GPatternUTF8Lexer {
     }
 
     private boolean arrayEquals(int startOffset, int endOffset, byte[] symbol, byte[] array) {
-        for (int i = startOffset + 8, j = 8; i < endOffset; i++, j++) {
-            if (array[i] != symbol[j]) {
+        int length = symbol.length;
+        for (int j = 4; j < length; j++) {
+            if (array[startOffset + j] != symbol[j]) {
                 return false;
             }
         }
