@@ -21,5 +21,5 @@ public interface GPatternSeq {
 
     int getEndOffset();
 
-    public boolean equalsLength(GPatternToken oo);
+    boolean fastEquals(GPatternSeq oo);
 }

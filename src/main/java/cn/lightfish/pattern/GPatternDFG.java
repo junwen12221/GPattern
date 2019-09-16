@@ -112,7 +112,7 @@ public interface GPatternDFG {
             public GPatternSeq nextToken;
             public State nextState;
             private String name;
-            private final Object2ObjectOpenHashMap<GPatternSeq, State> success = new Object2ObjectOpenHashMap<>(256, 1.0f);
+            private final Object2ObjectOpenHashMap<GPatternSeq, State> success = new Object2ObjectOpenHashMap<>();
             private State matcher;
             private int id = Integer.MIN_VALUE;
             private boolean end = false;
@@ -143,7 +143,7 @@ public interface GPatternDFG {
 
             public State accept(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
                 if (nextToken != null) {
-                    if (token.equals(nextToken)) {
+                    if (token.fastEquals(nextToken)) {
                         return nextState;
                     }
                 }

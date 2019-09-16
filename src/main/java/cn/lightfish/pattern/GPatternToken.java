@@ -57,14 +57,18 @@ public final class GPatternToken implements Cloneable, GPatternSeq {
     @Override
     public boolean equals(Object oo) {
         GPatternToken o = (GPatternToken) oo;
-        if (this.hash != o.hash || this.length != o.length) return false;
-        if (this.symbol != null) return Arrays.equals(this.symbol, o.symbol);
-        return lexer.equals(this.startOffset, this.endOffset, o.symbol);
+        if (fastEquals(o)) {
+            if (this.symbol != null) return Arrays.equals(this.symbol, o.symbol);
+            return lexer.fastEquals(this.startOffset, this.endOffset, o.symbol);
+        } else {
+            return false;
+        }
     }
 
     @Override
-    public boolean equalsLength(GPatternToken oo) {
-        return this.length == oo.length;
+    public boolean fastEquals(GPatternSeq oo) {
+        GPatternToken o = (GPatternToken) oo;
+        return this.hash == o.hash && this.length == o.length;
     }
 
     @Override

@@ -240,7 +240,7 @@ public class GPatternUTF8Lexer {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
-    public boolean equals(int startOffset, int endOffset, byte[] symbol) {
+    public boolean fastEquals(int startOffset, int endOffset, byte[] symbol) {
         if (buffer.hasArray()) {
             byte[] array = buffer.array();
             return arrayEquals(startOffset, endOffset, symbol, array);
