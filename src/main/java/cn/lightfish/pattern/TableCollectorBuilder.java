@@ -1,0 +1,55 @@
+package cn.lightfish.pattern;
+
+import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
+
+import java.util.*;
+
+public class TableCollectorBuilder {
+    final Map<String, Integer> schemaHash = new HashMap<>();
+    final LongObjectHashMap<TableCollector.TableInfo> map = new LongObjectHashMap<>();
+    final int dotHash;
+    private final GPatternIdRecorder recorder;
+    private final Map<String, Map<String, TableCollector.TableInfo>> schemaInfos = new HashMap<>();
+
+    public TableCollectorBuilder(GPatternIdRecorder recorder, Map<String, Collection<String>> schemaInfos) {
+        this.recorder = recorder;
+        this.dotHash = recorder.createConstToken(".").hashCode();
+        for (Map.Entry<String, Collection<String>> stringSetEntry : schemaInfos.entrySet()) {
+            String schemaName = stringSetEntry.getKey();
+            List<Integer> schemaHashList = record(recorder, schemaName);
+            Map<String, TableCollector.TableInfo> tableInfoMap = this.schemaInfos.computeIfAbsent(schemaName, (s) -> new HashMap<>());
+            Collection<String> tableNames = stringSetEntry.getValue();
+            for (String tableName : tableNames) {
+                List<Integer> tableNameHashList = record(recorder, tableName);
+                for (Integer schemaNameHash : schemaHashList) {
+                    schemaHash.computeIfAbsent(schemaName, s -> schemaNameHash);
+                    for (Integer tableNameHash : tableNameHashList) {
+                        long hash = schemaNameHash;
+                        hash = hash << 32;
+                        hash = hash | tableNameHash;
+                        TableCollector.TableInfo tableInfo = new TableCollector.TableInfo(schemaName, tableName, schemaNameHash, tableNameHash, hash);
+                        tableInfoMap.put(tableName, tableInfo);
+                        map.put(hash, tableInfo);
+                    }
+                }
+            }
+        }
+    }
+
+    private List<Integer> record(GPatternIdRecorder recorder, String text) {
+        String lowerCase = text.toLowerCase();
+        String upperCase = text.toUpperCase();
+
+        ArrayList<Integer> list = new ArrayList<>();
+        list.add(recorder.createConstToken(lowerCase).hashCode());
+        list.add(recorder.createConstToken(upperCase).hashCode());
+        list.add(recorder.createConstToken("`" + lowerCase + "`").hashCode());
+        list.add(recorder.createConstToken("`" + upperCase + "`").hashCode());
+        return list;
+    }
+
+    public TableCollector create() {
+        return new TableCollector(this);
+    }
+
+}

@@ -28,15 +28,14 @@ public class GPatternCollectorTest {
         int id = patternBuilder.addRule(message);
 
         GPatternIdRecorder recorder = patternBuilder.geIdRecorder();
-        TableCollector gPatternTokenCollector = new TableCollector(recorder, infos);
-        GPattern gPattern = patternBuilder.createGroupPattern(gPatternTokenCollector);
+        TableCollectorBuilder builder = new TableCollectorBuilder(recorder, infos);
+        TableCollector tableCollector = builder.create();
+        GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
-        gPatternTokenCollector.useSchema("db1");
-        gPatternTokenCollector.onCollectStart();
+        tableCollector.useSchema("db1");
         GPatternMatcher matcher = gPattern.matcher(message);
         Assert.assertTrue(matcher.acceptAll());
-        Map<String, Collection<String>> map = gPatternTokenCollector.geTableMap();
-        Assert.assertEquals(infos, map);
+        Assert.assertEquals(infos, tableCollector.geTableMap());
     }
 
     private void addTable(Map<String, Collection<String>> infos, String schemaName, String tableName) {

@@ -24,60 +24,28 @@ import java.util.*;
  * table1.column1
  */
 public class TableCollector implements GPatternTokenCollector {
+    private final int dotHash;
+    private final LongObjectHashMap<TableInfo> map;
     private final TableInfo[] tables = new TableInfo[32];
-    private final GPatternIdRecorder recorder;
-    private final Map<String, Map<String, TableInfo>> schemaInfos = new HashMap<>();
-    private final LongObjectHashMap<TableInfo> map = new LongObjectHashMap<>();
-    State state = State.EXCPECT_ID;
-    long currentSchemaLeftShift32;
-    int first;
-    int second;
-    private int dotHash;
+    private final TableCollectorBuilder builder;
     private int tableIndex;
+    private State state = State.EXCPECT_ID;
+    private long currentSchemaLeftShift32;
+    private int first;
+    private int second;
 
-
-    public TableCollector(GPatternIdRecorder recorder, Map<String, Collection<String>> schemaInfos) {
-        this.recorder = recorder;
-        this.dotHash = recorder.createConstToken(".").hashCode();
-        for (Map.Entry<String, Collection<String>> stringSetEntry : schemaInfos.entrySet()) {
-            String schemaName = stringSetEntry.getKey();
-            List<Integer> schemaHashList = record(recorder, schemaName);
-            Map<String, TableInfo> tableInfoMap = this.schemaInfos.computeIfAbsent(schemaName, (s) -> new HashMap<>());
-            Collection<String> tableNames = stringSetEntry.getValue();
-            for (String tableName : tableNames) {
-                List<Integer> tableNameHashList = record(recorder, tableName);
-                for (Integer schemaNameHash : schemaHashList) {
-                    for (Integer tableNameHash : tableNameHashList) {
-                        long hash = schemaNameHash;
-                        hash = hash << 32;
-                        hash = hash | tableNameHash;
-                        TableInfo tableInfo = new TableInfo(schemaName, tableName, schemaNameHash, tableNameHash, hash);
-                        tableInfoMap.put(tableName, tableInfo);
-                        map.put(hash, tableInfo);
-                    }
-                }
-            }
-        }
+    public TableCollector(TableCollectorBuilder builder) {
+        this.builder = builder;
+        this.dotHash = builder.dotHash;
+        this.map = builder.map;
     }
 
     public void useSchema(String schema) {
-        Map<String, TableInfo> stringTableInfoMap = schemaInfos.get(schema);
-        if (stringTableInfoMap == null) throw new UnsupportedOperationException();
-        long hash = stringTableInfoMap.values().iterator().next().getSchema();
+        Integer intHash = builder.schemaHash.get(schema);
+        if (intHash == null) throw new UnsupportedOperationException();
+        long hash = intHash;
         hash = hash << 32;
         currentSchemaLeftShift32 = hash;
-    }
-
-    private List<Integer> record(GPatternIdRecorder recorder, String text) {
-        String lowerCase = text.toLowerCase();
-        String upperCase = text.toUpperCase();
-
-        ArrayList<Integer> list = new ArrayList<>();
-        list.add(recorder.createConstToken(lowerCase).hashCode());
-        list.add(recorder.createConstToken(upperCase).hashCode());
-        list.add(recorder.createConstToken("`" + lowerCase + "`").hashCode());
-        list.add(recorder.createConstToken("`" + upperCase + "`").hashCode());
-        return list;
     }
 
 
@@ -155,12 +123,11 @@ public class TableCollector implements GPatternTokenCollector {
     }
 
     public Map<String, Collection<String>> geTableMap(Map<String, Collection<String>> map) {
-        Map<String, Collection<String>> collectionMap = new HashMap<>();
         for (int i = 0; i < this.tableIndex; i++) {
             TableInfo table = tables[i];
-            collectionMap.computeIfAbsent(table.getSchemaName(), s -> new HashSet<>()).add(table.getTableName());
+            map.computeIfAbsent(table.getSchemaName(), s -> new HashSet<>()).add(table.getTableName());
         }
-        return collectionMap;
+        return map;
     }
 
     public Map<String, Collection<String>> geTableMap() {

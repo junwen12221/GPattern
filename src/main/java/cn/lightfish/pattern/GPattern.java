@@ -49,6 +49,7 @@ public class GPattern {
     public GPatternMatcher matcher(ByteBuffer buffer) {
         utf8Lexer.init(buffer, 0, buffer.limit());
         matcher.reset();
+        collector.onCollectStart();
         while (utf8Lexer.nextToken()) {
             GPatternSeq token = idRecorder.toCurToken();
             if (matcher.accept(token)) {
@@ -58,6 +59,7 @@ public class GPattern {
             }
             collector.collect(token);
         }
+        collector.onCollectEnd();
         return matcher;
     }
 
