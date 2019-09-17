@@ -26,12 +26,14 @@ public class GPattern {
     private final GPatternIdRecorder idRecorder;
     private final GPatternUTF8Lexer utf8Lexer;
     private final GPatternMatcher matcher;
+    private final GPatternTokenCollector collector;
     private static final Logger LOGGER = LoggerFactory.getLogger(GPattern.class);
     private static final boolean DEBUG_ENABLED =
             false;
 
-    public GPattern(GPatternDFG dfg, GPatternIdRecorder copyRecorder) {
+    public GPattern(GPatternDFG dfg, GPatternIdRecorder copyRecorder, GPatternTokenCollector collector) {
         this.idRecorder = copyRecorder;
+        this.collector = collector;
         this.utf8Lexer = new GPatternUTF8Lexer(this.idRecorder);
         this.matcher = dfg.getMatcher();
     }
@@ -54,6 +56,7 @@ public class GPattern {
             } else {
                 if (DEBUG_ENABLED) LOGGER.debug("reject:{}" + token);
             }
+            collector.collect(token);
         }
         return matcher;
     }
@@ -70,30 +73,18 @@ public class GPattern {
         return res;
     }
 
-    /**
-     * Getter for property 'idRecorder'.
-     *
-     * @return Value for property 'idRecorder'.
-     */
     public GPatternIdRecorder getIdRecorder() {
         return idRecorder;
     }
 
-    /**
-     * Getter for property 'utf8Lexer'.
-     *
-     * @return Value for property 'utf8Lexer'.
-     */
     public GPatternUTF8Lexer getUtf8Lexer() {
         return utf8Lexer;
     }
-
-    /**
-     * Getter for property 'matcher'.
-     *
-     * @return Value for property 'matcher'.
-     */
     public GPatternMatcher getMatcher() {
         return matcher;
+    }
+
+    public <T> T getCollector() {
+        return (T) collector;
     }
 }

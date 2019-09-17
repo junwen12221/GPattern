@@ -22,4 +22,6 @@ public interface GPatternSeq {
     int getEndOffset();
 
     boolean fastEquals(GPatternSeq oo);
+
+    int hashCode();
 }

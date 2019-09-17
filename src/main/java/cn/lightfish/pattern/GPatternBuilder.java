@@ -18,7 +18,6 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 
 public class GPatternBuilder {
@@ -64,8 +63,15 @@ public class GPatternBuilder {
             }
         });
     }
-
     public GPattern createGroupPattern() {
-        return new GPattern(dfg, idRecorder.createCopyRecorder());
+        return new GPattern(dfg, idRecorder.createCopyRecorder(), GPatternTokenCollector.EMPTY);
+    }
+
+    public GPattern createGroupPattern(GPatternTokenCollector collector) {
+        return new GPattern(dfg, idRecorder.createCopyRecorder(), collector);
+    }
+
+    public GPatternIdRecorder geIdRecorder() {
+        return idRecorder;
     }
 }
