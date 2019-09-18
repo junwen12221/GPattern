@@ -206,6 +206,25 @@ public class GPatternCollectorTest {
     }
 
     @Test
+    public void test9() {
+        GPatternBuilder patternBuilder = new GPatternBuilder(0);
+        String message = "SELECT u.id , u2.id,                           db1.info.id        FROM user u ,db2.user2 u2 ";
+        int id = patternBuilder.addRule(message);
+
+        GPatternIdRecorder recorder = patternBuilder.geIdRecorder();
+        TableCollectorBuilder builder = new TableCollectorBuilder(recorder, infos);
+        TableCollector tableCollector = builder.create();
+        GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
+
+        tableCollector.useSchema("db1");
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
+        Assert.assertTrue(matcher.acceptAll());
+        Map<String, Collection<String>> result = tableCollector.geTableMap();
+        Assert.assertTrue(result.get("db1").contains("info"));//in fact ,it is wrong
+        Assert.assertTrue(result.get("db1").contains("user"));
+        Assert.assertTrue(result.get("db2").contains("user2"));
+    }
+    @Test
     public void test5() {
         GPatternBuilder patternBuilder = new GPatternBuilder(0);
         String message = "select count(*) count from (select *\r\n"
