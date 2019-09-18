@@ -50,7 +50,7 @@ public interface GPatternDFG {
             State nextState = null;
             for (; format.hasNext(); ) {
                 lastState = state;
-                GPatternSeq token = format.next();
+                GPatternToken token = (GPatternToken) format.next();
                 if ("{".equals(token.getSymbol())) {
                     if (!format.hasNext()) throw new GPatternException.NameSyntaxException("'{' name ends early");
                     String name = format.next().getSymbol().trim();
@@ -107,12 +107,13 @@ public interface GPatternDFG {
             return variables;
         }
 
+
         public static class State {
             final int depth;
             public GPatternSeq nextToken;
             public State nextState;
             private String name;
-            private final Object2ObjectOpenHashMap<GPatternSeq, State> success = new Object2ObjectOpenHashMap<>();
+            private final Object2ObjectOpenHashMap<GPatternToken, State> success = new Object2ObjectOpenHashMap<GPatternToken, State>();
             private State matcher;
             private int id = Integer.MIN_VALUE;
             private boolean end = false;
@@ -121,7 +122,7 @@ public interface GPatternDFG {
                 this.depth = depth;
             }
 
-            public State addState(GPatternSeq next) {
+            public State addState(GPatternToken next) {
                 if (success.containsKey(next)) {
                     return success.get(next);
                 } else {
@@ -141,7 +142,7 @@ public interface GPatternDFG {
                     throw new GPatternException.NameLocationAmbiguityException("'{' {0} '}' '{' {1} '}' are ambiguous", this.name, name);
             }
 
-            public State accept(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
+            public State accept(GPatternToken token, int startOffset, int endOffset, MatcherImpl map) {
                 if (nextToken != null) {
                     if (token.fastEquals(nextToken)) {
                         return nextState;
@@ -160,7 +161,7 @@ public interface GPatternDFG {
             }
 
             @NotNull
-            private State wildCardMatch(GPatternSeq token, int startOffset, int endOffset, MatcherImpl map) {
+            private State wildCardMatch(GPatternToken token, int startOffset, int endOffset, MatcherImpl map) {
                 State accept = matcher.accept(token, startOffset, endOffset, map);
                 if (accept != null) {
                     return accept;
@@ -194,7 +195,7 @@ public interface GPatternDFG {
             this.context = new GPositionRecorder(dfg.variables);
         }
 
-        public boolean accept(GPatternSeq token) {
+        public boolean accept(GPatternToken token) {
             if (this.state == null) return false;
             DFGImpl.State orign = this.state;
             this.state  = this.state.accept(token, token.getStartOffset(), token.getEndOffset(), this);
@@ -213,6 +214,11 @@ public interface GPatternDFG {
         @Override
         public Map<String, GPatternPosition> context() {
             return context.map;
+        }
+
+        @Override
+        public boolean accept(GPatternSeq token) {
+            return accept((GPatternToken) token);
         }
 
         @Override

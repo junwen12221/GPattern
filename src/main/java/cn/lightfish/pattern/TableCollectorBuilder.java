@@ -1,12 +1,12 @@
 package cn.lightfish.pattern;
 
-import org.eclipse.collections.impl.map.mutable.primitive.LongObjectHashMap;
+import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 
 import java.util.*;
 
 public class TableCollectorBuilder {
     final Map<String, Integer> schemaHash = new HashMap<>();
-    final LongObjectHashMap<TableCollector.TableInfo> map = new LongObjectHashMap<>();
+    final IntObjectHashMap<TableCollector.TableInfo> map = new IntObjectHashMap<>();
     final int dotHash;
     private final GPatternIdRecorder recorder;
     private final Map<String, Map<String, TableCollector.TableInfo>> schemaInfos = new HashMap<>();
@@ -16,31 +16,42 @@ public class TableCollectorBuilder {
         this.dotHash = recorder.createConstToken(".").hashCode();
         for (Map.Entry<String, Collection<String>> stringSetEntry : schemaInfos.entrySet()) {
             String schemaName = stringSetEntry.getKey();
-            List<Integer> schemaHashList = record(recorder, schemaName);
+            Set<Integer> schemaHashList = record(recorder, schemaName);
             Map<String, TableCollector.TableInfo> tableInfoMap = this.schemaInfos.computeIfAbsent(schemaName, (s) -> new HashMap<>());
             Collection<String> tableNames = stringSetEntry.getValue();
             for (String tableName : tableNames) {
-                List<Integer> tableNameHashList = record(recorder, tableName);
+                Set<Integer> tableNameHashList = record(recorder, tableName);
                 for (Integer schemaNameHash : schemaHashList) {
                     schemaHash.computeIfAbsent(schemaName, s -> schemaNameHash);
                     for (Integer tableNameHash : tableNameHashList) {
-                        long hash = schemaNameHash;
-                        hash = hash << 32;
-                        hash = hash | tableNameHash;
+                        int hash = schemaNameHash;
+                        hash = hash ^ tableNameHash;
                         TableCollector.TableInfo tableInfo = new TableCollector.TableInfo(schemaName, tableName, schemaNameHash, tableNameHash, hash);
                         tableInfoMap.put(tableName, tableInfo);
-                        map.put(hash, tableInfo);
+                        if (!map.containsKey(hash)) {
+                            map.put(hash, tableInfo);
+                        } else {
+                            TableCollector.TableInfo info = map.get(hash);
+                            if (info.getSchemaName().equals(schemaName)) {
+                                if (info.getTableName().equals(tableName)) {
+                                    continue;
+                                }
+                            }
+                            throw new GPatternException.ConstTokenHashConflictException("Hash conflict between {0}.{1} and {2}.{3}",
+                                    info.getSchemaName(), info.getTableName(),
+                                    schemaName, tableName);
+                        }
                     }
                 }
             }
         }
     }
 
-    private List<Integer> record(GPatternIdRecorder recorder, String text) {
+    private Set<Integer> record(GPatternIdRecorder recorder, String text) {
         String lowerCase = text.toLowerCase();
         String upperCase = text.toUpperCase();
 
-        ArrayList<Integer> list = new ArrayList<>();
+        Set<Integer> list = new HashSet<>();
         list.add(recorder.createConstToken(lowerCase).hashCode());
         list.add(recorder.createConstToken(upperCase).hashCode());
         list.add(recorder.createConstToken("`" + lowerCase + "`").hashCode());

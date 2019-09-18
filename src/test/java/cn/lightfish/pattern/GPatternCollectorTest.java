@@ -26,6 +26,11 @@ public class GPatternCollectorTest {
         }
     }
 
+    public static void addTable(Map<String, Collection<String>> infos, String schemaName, String tableName) {
+        Collection<String> set = infos.computeIfAbsent(schemaName, (s) -> new HashSet<>());
+        set.add(tableName);
+    }
+
     @Test
     public void test22222() {
         GPatternBuilder patternBuilder = new GPatternBuilder(0);
@@ -44,7 +49,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> res = tableCollector.geTableMap();
         Assert.assertTrue(res.get("db1").contains("app"));
@@ -65,7 +70,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -83,7 +88,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -101,7 +106,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -119,7 +124,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -137,7 +142,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -155,7 +160,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -174,7 +179,26 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
+        Assert.assertTrue(matcher.acceptAll());
+        Map<String, Collection<String>> result = tableCollector.geTableMap();
+        Assert.assertTrue(result.get("db1").contains("user"));
+        Assert.assertNull(result.get("db2"));
+    }
+
+    @Test
+    public void test8() {
+        GPatternBuilder patternBuilder = new GPatternBuilder(0);
+        String message = "SELECT u.id , u2.id FROM user u ,db2.user2 u2 ";
+        int id = patternBuilder.addRule(message);
+
+        GPatternIdRecorder recorder = patternBuilder.geIdRecorder();
+        TableCollectorBuilder builder = new TableCollectorBuilder(recorder, infos);
+        TableCollector tableCollector = builder.create();
+        GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
+
+        tableCollector.useSchema("db1");
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("user"));
@@ -311,7 +335,7 @@ public class GPatternCollectorTest {
         GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
 
         tableCollector.useSchema("db1");
-        GPatternMatcher matcher = gPattern.matcher(message);
+        GPatternMatcher matcher = gPattern.matcherAndCollect(message);
         Assert.assertTrue(matcher.acceptAll());
         Map<String, Collection<String>> result = tableCollector.geTableMap();
         Assert.assertTrue(result.get("db1").contains("prod_offer"));
@@ -320,10 +344,6 @@ public class GPatternCollectorTest {
         Assert.assertTrue(result.get("db1").contains("prod_offer_region"));
         Assert.assertTrue(result.get("db1").contains("sales_restrication"));
         Assert.assertTrue(result.get("db1").contains("product_offer_cat"));
-    }
-    private void addTable(Map<String, Collection<String>> infos, String schemaName, String tableName) {
-        Collection<String> set = infos.computeIfAbsent(schemaName, (s) -> new HashSet<>());
-        set.add(tableName);
     }
 
 

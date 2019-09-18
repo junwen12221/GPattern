@@ -46,7 +46,35 @@ public class GPattern {
         return matcher(ByteBuffer.wrap(buffer));
     }
 
+    public GPatternMatcher matcherAndCollect(String pattern) {
+        return matcherAndCollect(StandardCharsets.UTF_8.encode(pattern));
+    }
+
     public GPatternMatcher matcher(ByteBuffer buffer) {
+        utf8Lexer.init(buffer, 0, buffer.limit());
+        matcher.reset();
+        while (utf8Lexer.nextToken()) {
+            GPatternSeq token = idRecorder.toCurToken();
+            if (matcher.accept(token)) {
+                if (DEBUG_ENABLED) LOGGER.debug("accept:{}" + token);
+            } else {
+                if (DEBUG_ENABLED) LOGGER.debug("reject:{}" + token);
+            }
+        }
+        return matcher;
+    }
+
+    public void collect(ByteBuffer buffer) {
+        utf8Lexer.init(buffer, 0, buffer.limit());
+        collector.onCollectStart();
+        while (utf8Lexer.nextToken()) {
+            GPatternSeq token = idRecorder.toCurToken();
+            collector.collect(token);
+        }
+        collector.onCollectEnd();
+    }
+
+    public GPatternMatcher matcherAndCollect(ByteBuffer buffer) {
         utf8Lexer.init(buffer, 0, buffer.limit());
         matcher.reset();
         collector.onCollectStart();
@@ -82,6 +110,7 @@ public class GPattern {
     public GPatternUTF8Lexer getUtf8Lexer() {
         return utf8Lexer;
     }
+
     public GPatternMatcher getMatcher() {
         return matcher;
     }
