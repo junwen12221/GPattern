@@ -69,6 +69,8 @@ public class TableCollector implements GPatternTokenCollector {
             }
             case EXPECT_ATTRIBUTE: {
                 second = hash;
+                collect(first, second);
+                clearState();
                 state = State.EXPECT_DOT;
                 break;
             }
@@ -76,8 +78,6 @@ public class TableCollector implements GPatternTokenCollector {
                 if (hash == dotHash) {
                     state = State.EXPECT_TABLE;
                 } else {
-                    collect(first, second);
-                    clearState();
                     state = State.EXCPECT_ID;
                 }
                 break;
