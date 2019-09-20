@@ -1,9 +1,6 @@
 package cn.lightfish.dynamicSQL;
 
-import cn.lightfish.Item;
-import cn.lightfish.SchemaItem;
-import cn.lightfish.SchemaTable;
-import cn.lightfish.TextItem;
+import cn.lightfish.*;
 
 import java.util.*;
 
@@ -32,16 +29,16 @@ public class DynamicMatcherInfoBuilder {
 
     }
 
-    public void addTable(String schemaName, String tableName) {
+    private void addTable(String schemaName, String tableName) {
         Collection<String> set = tableMap.computeIfAbsent(schemaName.toUpperCase(), (s) -> new HashSet<>());
         set.add(tableName.toUpperCase());
     }
 
-    private void addSchema(String schema, String pattern, String code) {
+    public void addSchema(String schema, String pattern, String code) {
         String[] split = schema.split(",");
         Set<SchemaTable> set = new HashSet<>();
         for (String s : split) {
-            String[] split1 = s.split(".");
+            String[] split1 = s.split("\\.");
             String schemaName = split1[0].intern();
             String tableName = split1[1].intern();
             addTable(schemaName, tableName);
@@ -51,7 +48,7 @@ public class DynamicMatcherInfoBuilder {
         schemaPetterns.add(new SchemaItem(set, pattern, code));
     }
 
-    private void add(String pettern, String code) {
+    public void add(String pettern, String code) {
         petterns.add(new TextItem(pettern, code));
     }
 
@@ -59,8 +56,9 @@ public class DynamicMatcherInfoBuilder {
         Map<Integer, TextItem> textItems = new HashMap<>();
         for (TextItem pettern : petterns) {
             int id = complier.complie(pettern.getPettern());
-            if (textItems.put(id, pettern) != null) {
-                throw new UnsupportedOperationException();
+            TextItem tmp;
+            if ((tmp = textItems.put(id, pettern)) != null) {
+                throw new GPatternException.PatternConflictException("{0} and {1} is conflict", tmp, pettern);
             }
         }
 
@@ -72,7 +70,7 @@ public class DynamicMatcherInfoBuilder {
                     List<SchemaItem> list = delayDecisionSet.computeIfAbsent(id, integer -> new ArrayList<>());
                     list.add(schemaPettern);
                 } else {
-                    throw new UnsupportedOperationException();
+                    throw new GPatternException.PatternConflictException("{0} and {1} is conflict", textItems.get(id), schemaPettern);
                 }
             }
         }
@@ -80,7 +78,7 @@ public class DynamicMatcherInfoBuilder {
         for (Map.Entry<Integer, List<SchemaItem>> entry : delayDecisionSet.entrySet()) {
             for (SchemaItem schemaItem : entry.getValue()) {
                 if (!set.add(schemaItem.getSchemas())) {
-                    throw new UnsupportedOperationException();
+                    throw new GPatternException.PatternConflictException("{0} is conflict", schemaItem);
                 }
             }
         }

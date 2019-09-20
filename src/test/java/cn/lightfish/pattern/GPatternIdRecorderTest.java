@@ -14,12 +14,11 @@
  */
 package cn.lightfish.pattern;
 
+import cn.lightfish.GPatternException;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;

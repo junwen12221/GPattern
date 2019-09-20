@@ -14,6 +14,7 @@
  */
 package cn.lightfish.pattern;
 
+import cn.lightfish.GPatternException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 
@@ -79,22 +80,28 @@ public interface GPatternDFG {
                     lastName = null;
                 }
             }
-            int i = identifierGenerator++;
-
+            int id = identifierGenerator++;
+            boolean set = false;//test 19 test 30
             if (lastState != null && lastState.name != null && state.name == null && state.success.isEmpty() && state.matcher == null) {
-                state.end(i);
+                state.end(id);
+                id = state.id;
                 state = lastState;
+                set = true;
             }
             if (!state.isEnd()) {
-                state.end(i);
+                state.end(id);
+                id = state.id;
+                set = true;
             }
+//
             ////优化
             if (state.success.size() == 1 && nextToken != null) {
                 state.nextToken = nextToken;
                 state.nextState = nextState;
                 state.success.clear();
             }
-            return i;
+
+            return set ? id : state.id;
         }
 
         @Override
@@ -198,7 +205,7 @@ public interface GPatternDFG {
         public boolean accept(GPatternToken token) {
             if (this.state == null) return false;
             DFGImpl.State orign = this.state;
-            this.state  = this.state.accept(token, token.getStartOffset(), token.getEndOffset(), this);
+            this.state = this.state.accept(token, token.getStartOffset(), token.getEndOffset(), this);
             return ((orign) != state);
         }
 
@@ -226,6 +233,11 @@ public interface GPatternDFG {
             this.state = rootState;
             this.context.name = null;
             this.context.currentPosition = null;
+            for (GPatternPosition value : this.context.map.values()) {
+                value.end = -1;
+                value.start = -1;
+            }
+
         }
     }
 }

@@ -1,19 +1,20 @@
 /**
  * Copyright (C) <2019>  <chen junwen>
- *
+ * <p>
  * This program is free software: you can redistribute it and/or modify it under the terms of the
  * GNU General Public License as published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
- *
+ * <p>
  * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
  * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
- *
+ * <p>
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
 package cn.lightfish.pattern;
 
+import cn.lightfish.GPatternException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -211,11 +212,25 @@ public class GPatternRuleTest {
         GPatternBuilder patternBuilder = new GPatternBuilder(0);
         int id = patternBuilder.addRule("LIMIT {count}");
         int id2 = patternBuilder.addRule("LIMIT 1");
-        GPattern GPattern = patternBuilder.createGroupPattern();
-        GPatternMatcher matcher = GPattern.matcher("LIMIT 1");
-        Assert.assertTrue(matcher.acceptAll());
         Assert.assertEquals(0, id);
         Assert.assertEquals(1, id2);
+
+        GPattern GPattern = patternBuilder.createGroupPattern();
+        GPatternMatcher matcher;
+
+
+        matcher = GPattern.matcher("LIMIT 1");
+        Assert.assertTrue(matcher.acceptAll());
+        Assert.assertEquals(1, matcher.id());
+        Assert.assertTrue(GPattern.toContextMap(matcher).isEmpty());
+
+        matcher = GPattern.matcher("LIMIT 2");
+        Assert.assertTrue(matcher.acceptAll());
+        Assert.assertEquals(0, matcher.id());
+        Assert.assertEquals("2", GPattern.toContextMap(matcher).get("count"));
+
+        matcher = GPattern.matcher("LIMIT 1");
+        Assert.assertTrue(matcher.acceptAll());
         Assert.assertEquals(1, matcher.id());
         Assert.assertTrue(GPattern.toContextMap(matcher).isEmpty());
     }
@@ -329,6 +344,27 @@ public class GPatternRuleTest {
         Assert.assertEquals("LIMIT 1", map.get("any3"));
     }
 
+    @Test
+    public void test30() {
+        GPatternBuilder patternBuilder = new GPatternBuilder(0);
+        int id = patternBuilder.addRule("{any} FROM");
+        int id2 = patternBuilder.addRule("{any} FROM");
+        GPattern GPattern = patternBuilder.createGroupPattern();
+
+        Assert.assertEquals(id2, id);
+
+    }
+
+    @Test
+    public void test31() {
+        GPatternBuilder patternBuilder = new GPatternBuilder(0);
+        int id = patternBuilder.addRule("FROM {any} ");
+        int id2 = patternBuilder.addRule("FROM {any}");
+        GPattern GPattern = patternBuilder.createGroupPattern();
+
+        Assert.assertEquals(id2, id);
+
+    }
     @Test(expected = GPatternException.NameAmbiguityException.class)
     public void test13() {
         GPatternBuilder patternBuilder = new GPatternBuilder(0);

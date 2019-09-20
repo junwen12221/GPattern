@@ -41,7 +41,7 @@ public class ExpendClassFactory {
     private Map<Class, List<Method>> getExpendMethods(String name) {
         Map<Class, List<Method>> listMap = new HashMap<>();
         Reflections reflections = new Reflections(name);
-        Set<Class<?>> impls = reflections.getSubTypesOf(expenderCollection);
+        Set<Class<?>> impls = reflections.getSubTypesOf((Class<Object>) expenderCollection);
         for (Class<?> impl : impls) {
             List<Method> list;
             listMap.put(impl, list = new ArrayList<>());

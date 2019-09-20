@@ -31,4 +31,14 @@ public class SchemaItem extends Item {
     public int getTableMapHash() {
         return tableMapHash;
     }
+
+    @Override
+    public String toString() {
+        return "SchemaItem{" +
+                "schemas=" + schemas +
+                ", pettern='" + pettern + '\'' +
+                ", code='" + code + '\'' +
+                ", instruction=" + instruction +
+                '}';
+    }
 }

@@ -25,4 +25,13 @@ public abstract class Item {
     public void setInstruction(Instruction instruction) {
         this.instruction = instruction;
     }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "pettern='" + pettern + '\'' +
+                ", code='" + code + '\'' +
+                ", instruction=" + instruction +
+                '}';
+    }
 }
