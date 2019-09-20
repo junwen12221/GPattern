@@ -4,7 +4,7 @@ import cn.lightfish.Instruction;
 import cn.lightfish.InstructionSet;
 import cn.lightfish.Item;
 import cn.lightfish.SchemaItem;
-import cn.lightfish.methodFactory.AddMehodClassAsSubClassFactory;
+import cn.lightfish.methodFactory.AddMehodClassFactory;
 import cn.lightfish.methodFactory.ExpendClassFactory;
 import cn.lightfish.pattern.*;
 import javassist.CannotCompileException;
@@ -37,7 +37,7 @@ public class DynamicSQLMatcherBuilder {
             for (Item item : value) {
                 String name = c.getSimpleName() + id++;
                 String code = item.getCode();
-                AddMehodClassAsSubClassFactory addMehodClassFactory = new AddMehodClassAsSubClassFactory(name, expendClass);
+                AddMehodClassFactory addMehodClassFactory = new AddMehodClassFactory(name, expendClass);
                 addMehodClassFactory.implMethod("execute", code);
                 Class build = addMehodClassFactory.build(debug);
                 Instruction o = (Instruction) build.newInstance();
