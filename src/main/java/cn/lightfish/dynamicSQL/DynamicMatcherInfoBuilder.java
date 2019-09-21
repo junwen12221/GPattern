@@ -6,28 +6,11 @@ import java.util.*;
 
 public class DynamicMatcherInfoBuilder {
 
-    final List<TextItem> petterns = new ArrayList<>();
-    final List<SchemaItem> schemaPetterns = new ArrayList<>();
-    final Map<String, Collection<String>> tableMap = new HashMap<>();
-
-    public static void main(String[] args) {
-
-
-        DynamicMatcherInfoBuilder builder = new DynamicMatcherInfoBuilder();
-        builder.add("select * from travelrecord;", "$proxy($SQL,\"dataNode1\")");
-        builder.add("select * from {db} travelrecord;", "$proxy($removeSchema($db,$SQL),\"dataNode1\")");
-
-        builder.add("set XA = 1;", " setXA(true)");
-        builder.add("set XA = 0;", "setXA(false)");
-
-        builder.add("begin;", "!$XA?$proxyOnMaster(\"begin;\".\"dataNode1\"):$JDBC.begin()");
-        builder.add("commit;", "!$XA?$proxyOnMaster(\"commit;\".\"dataNode1\"):$JDBC.commit()");
-
-        builder.addSchema("TESTDB.travelrecord", "select {}", "return $proxyOnBalance($autoRemoveSchema($SQL),\"dataNode1\")");
-        builder.addSchema("TESTDB.travelrecord", "{}", "return $proxyOnMaster($autoRemoveSchema($SQL),\"dataNode1\")");
-        builder.addSchema("TESTDB.travelrecord,TESTDB.user", "select {}", "return $calcite($SQL)");
-
-    }
+    final ArrayList<TextItem> petterns = new ArrayList<>();
+    final ArrayList<SchemaItem> schemaPetterns = new ArrayList<>();
+    final HashMap<String, Collection<String>> tableMap = new HashMap<>();
+    final HashMap<Set<SchemaTable>, SchemaItem> tableInstructionMap = new HashMap<>();
+    final HashMap<Integer, List<Item>> ruleInstructionMap = new HashMap<>();
 
     private void addTable(String schemaName, String tableName) {
         Collection<String> set = tableMap.computeIfAbsent(schemaName.toUpperCase(), (s) -> new HashSet<>());
@@ -52,7 +35,7 @@ public class DynamicMatcherInfoBuilder {
         petterns.add(new TextItem(pettern, code));
     }
 
-    public HashMap<Integer, List<Item>> build(PatternComplier complier) {
+    public void build(PatternComplier complier) {
         Map<Integer, TextItem> textItems = new HashMap<>();
         for (TextItem pettern : petterns) {
             int id = complier.complie(pettern.getPettern());
@@ -72,6 +55,12 @@ public class DynamicMatcherInfoBuilder {
                 } else {
                     throw new GPatternException.PatternConflictException("{0} and {1} is conflict", textItems.get(id), schemaPettern);
                 }
+            } else {
+                if (!tableInstructionMap.containsKey(schemaPettern.getSchemas())) {
+                    tableInstructionMap.put(schemaPettern.getSchemas(), schemaPettern);
+                } else {
+                    throw new GPatternException.PatternConflictException("{0} and {1} is conflict", tableInstructionMap.get(schemaPettern.getSchemas()), schemaPettern);
+                }
             }
         }
         HashSet<Set<SchemaTable>> set = new HashSet<>();
@@ -83,13 +72,11 @@ public class DynamicMatcherInfoBuilder {
             }
         }
 
-        HashMap<Integer, List<Item>> matcher = new HashMap<>();
-        textItems.forEach((key, value) -> matcher.put(key, Collections.singletonList(value)));
+        textItems.forEach((key, value) -> ruleInstructionMap.put(key, Collections.singletonList(value)));
         for (Map.Entry<Integer, List<SchemaItem>> integerListEntry : delayDecisionSet.entrySet()) {
-            List<Item> items = matcher.computeIfAbsent(integerListEntry.getKey(), integer -> new ArrayList<>());
+            List<Item> items = ruleInstructionMap.computeIfAbsent(integerListEntry.getKey(), integer -> new ArrayList<>());
             items.addAll(integerListEntry.getValue());
         }
-        return matcher;
     }
 
     public Map<String, Collection<String>> getTableMap() {
@@ -99,5 +86,4 @@ public class DynamicMatcherInfoBuilder {
     public interface PatternComplier {
         int complie(String pettern);
     }
-
 }

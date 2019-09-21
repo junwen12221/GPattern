@@ -1,22 +1,43 @@
 package cn.lightfish.dynamicSQL;
 
-import cn.lightfish.$Context;
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
+import cn.lightfish.Instruction;
+import cn.lightfish.InstructionSetImpl;
+import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
+import java.util.HashMap;
 
 public class DynamicSQLMatcherBuilderTest {
-//
-//    @Test
-//    public void test() throws Exception {
-//        DynamicSQLMatcherBuilder builder = new DynamicSQLMatcherBuilder("db1");
-//        builder.add("select 1;","System.out.prinln(1);");
-//        builder.addSchema("DB1.TABLE,DB2.TABLE2","select * from {tables}","System.out.prinln(1);");
-//        builder.build("cn.lightfish.methodFactory",false);
-//        DynamicSQLMatcher dynamicSQLMatcher = builder.create();
-//        $Context context = new $Context();
-//        dynamicSQLMatcher.match("select 1;",context);
-//    }
+
+    @Test
+    public void test() throws Exception {
+        DynamicSQLMatcherBuilder builder = new DynamicSQLMatcherBuilder("db1");
+        builder.add("select DB2.TABLE2.id from DB1.TABLE,DB2.TABLE2", "return Integer.valueOf(0);");
+        builder.add("select 1;", "return Integer.valueOf(1);");
+        builder.addSchema("DB1.TABLE,DB2.TABLE2", "select * from {tables}", "return Integer.valueOf(2);");
+        builder.addSchema("DB1.TABLE,DB2.TABLE2", null, "return Integer.valueOf(3);");
+        builder.build("cn.lightfish.methodFactory", false);
+        DynamicSQLMatcher dynamicSQLMatcher = builder.createMatcher();
+
+        Assert.assertEquals(Integer.valueOf(0), dynamicSQLMatcher.match("select DB2.TABLE2.id from DB1.TABLE,DB2.TABLE2").execute(null, dynamicSQLMatcher));
+        Assert.assertEquals(Integer.valueOf(1), dynamicSQLMatcher.match("select 1;").execute(null, dynamicSQLMatcher));
+        Assert.assertEquals(Integer.valueOf(2), dynamicSQLMatcher.match("select * from DB1.TABLE,DB2.TABLE2").execute(null, dynamicSQLMatcher));
+        Assert.assertNull(dynamicSQLMatcher.match("select 2;"));
+        Assert.assertEquals(Integer.valueOf(3), dynamicSQLMatcher.match("select DB1.TABLE.id,DB2.TABLE2.id from DB1.TABLE,DB2.TABLE2").execute(null, dynamicSQLMatcher));
+    }
+
+    @Test
+    public void test1() throws Exception {
+        DynamicSQLMatcherBuilder builder = new DynamicSQLMatcherBuilder(null);
+        builder.add("select {n};", "return toUpperCase(ctx,one())+getNameAsString(matcher,\"n\");");
+        builder.build("cn.lightfish", false);
+        DynamicSQLMatcher dynamicSQLMatcher = builder.createMatcher();
+        Instruction match = dynamicSQLMatcher.match("select 1;");
+        HashMap<Byte, Object> objectObjectHashMap = new HashMap<>();
+        objectObjectHashMap.put(InstructionSetImpl.one(), "a");
+        Object execute = match.execute(objectObjectHashMap, dynamicSQLMatcher);
+        Assert.assertEquals("A1", execute);
+    }
+
+
 }

@@ -1,18 +1,15 @@
 package cn.lightfish.methodFactory;
 
-import cn.lightfish.$Context;
-import javassist.CannotCompileException;
-import javassist.NotFoundException;
+import cn.lightfish.Instruction;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class AddMehodClassAsSubClassFactoryTest {
     @Test
     public void test() throws Exception {
-        AddMehodClassFactory factory = new AddMehodClassFactory("Name", $Context.class);
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name", Object.class);
         Class o = factory.build(false);
         Object o1 = o.newInstance();
         Assert.assertNotNull(o1);
@@ -20,8 +17,8 @@ public class AddMehodClassAsSubClassFactoryTest {
     }
 
     @Test
-    public void test1() throws Exception{
-        AddMehodClassFactory factory = new AddMehodClassFactory("Name1", $Context.class);
+    public void test1() throws Exception {
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name1", Object.class);
         Class o = factory.build(true);
         Object o1 = o.newInstance();
         Assert.assertNotNull(o1);
@@ -29,7 +26,7 @@ public class AddMehodClassAsSubClassFactoryTest {
 
     @Test
     public void test2() throws Exception {
-        AddMehodClassFactory factory = new AddMehodClassFactory("Name2", $Context.class);
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name2", Object.class);
         factory.addMethod("public String name(){return \"hello\";}");
         Class o = factory.build(true);
         Object o1 = o.newInstance();
@@ -40,7 +37,7 @@ public class AddMehodClassAsSubClassFactoryTest {
 
     @Test
     public void test3() throws Exception {
-        AddMehodClassFactory factory = new AddMehodClassFactory("Name3", $Context.class);
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name3", Object.class);
         factory.addExpender(TestExpenderCollection.class);
         Class o = factory.build(true);
         Object o1 = o.newInstance();
@@ -51,12 +48,21 @@ public class AddMehodClassAsSubClassFactoryTest {
 
     @Test
     public void test4() throws Exception {
-        AddMehodClassFactory factory = new AddMehodClassFactory("Name4", $Context.class);
-        factory.addExpender("cn.lightfish.methodFactory",TestExpenderInterface.class);
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name4", Object.class);
+        factory.addExpender("cn.lightfish.methodFactory", TestExpenderInterface.class);
         Class o = factory.build(true);
         Object o1 = o.newInstance();
         Method name = o1.getClass().getDeclaredMethod("name");
         String value = (String) name.invoke(o1);
         Assert.assertEquals("name", value);
+    }
+
+    @Test
+    public void test5() throws Exception {
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name5", Instruction.class);
+        factory.implMethod("execute", "Object ctx = $1;", "System.out.println(ctx);return null;");
+        Class o = factory.build(true);
+        Instruction o1 = (Instruction) o.newInstance();
+        o1.execute(null, null);
     }
 }

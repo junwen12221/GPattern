@@ -1,92 +1,74 @@
-//package cn.lightfish.dynamicSQL;
-//
-//import cn.lightfish.Instruction;
-//import cn.lightfish.InstructionSet;
-//import cn.lightfish.Item;
-//import cn.lightfish.SchemaItem;
-//import cn.lightfish.methodFactory.AddMehodClassFactory;
-//import cn.lightfish.pattern.*;
-//
-//import java.util.*;
-//
-//public class DynamicSQLMatcherBuilder {
-//    private final String dafaultSchema;
-//    private final DynamicMatcherInfoBuilder dynamicMatcherInfoBuilder = new DynamicMatcherInfoBuilder();
-//    private final GPatternBuilder patternBuilder = new GPatternBuilder(0);
-//    private final DynamicMatcherInfoBuilder.PatternComplier patternComplier = pettern -> patternBuilder.addRule(pettern);
-//    private int id = 0;
-//    private HashMap<Integer, List<Item>> runtimeMap;
-//    private TableCollectorBuilder tableCollctorbuilder;
-//
-//    public void addSchema(String schema, String pattern, String code) {
-//        dynamicMatcherInfoBuilder.addSchema(schema, pattern, code);
-//    }
-//
-//    public void add(String pettern, String code) {
-//        dynamicMatcherInfoBuilder.add(pettern, code);
-//    }
-//
-//    public DynamicSQLMatcherBuilder(String dafaultSchema) {
-//        this.dafaultSchema = dafaultSchema;
-//    }
-//
-//    public void build(String packageName, boolean debug) throws Exception {
-//        build(Collections.singletonList(packageName), debug);
-//    }
-//
-//    public void build(List<String> packageNameList, boolean debug) throws Exception {
-//        Class c = Instruction.class;
-//        ExpendClassFactory expendClassFactory = new ExpendClassFactory("Name",c, InstructionSet.class, packageNameList);
-//        Class<?> expendClass = expendClassFactory.getExpend();
-//        this.runtimeMap = dynamicMatcherInfoBuilder.build(patternComplier);
-//        for (List<Item> value : runtimeMap.values()) {
-//            for (Item item : value) {
-//                String name = c.getSimpleName() + id++;
-//                String code = item.getCode();
-//                AddMehodClassFactory addMehodClassFactory = new AddMehodClassFactory(name, expendClass);
-//                addMehodClassFactory.implMethod("execute", code);
-//                Class build = addMehodClassFactory.build(debug);
-//                Instruction o = (Instruction) build.newInstance();
-//                item.setInstruction(o);
-//            }
-//        }
-//        this.tableCollctorbuilder = new TableCollectorBuilder(patternBuilder.geIdRecorder(), dynamicMatcherInfoBuilder.getTableMap());
-//    }
-//
-//    public DynamicSQLMatcher create() {
-//        TableCollector tableCollector = tableCollctorbuilder.create();
-//        tableCollector.useSchema(dafaultSchema);
-//        GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
-//        return (sql, context) -> {
-//            GPatternMatcher matcher = gPattern.matcher(sql);
-//            Instruction instruction = getInstruction(matcher, tableCollector);
-//            if (instruction != null) {
-//                instruction.execute(context);
-//                return;
-//            }
-//            throw new UnsupportedOperationException();
-//        }
-//                ;
-//    }
-//
-//    private Instruction getInstruction(GPatternMatcher matcher, TableCollector tableCollector) {
-//        if (matcher.acceptAll()) {
-//            int id = matcher.id();
-//            List<Item> items = runtimeMap.get(id);
-//            if (items.size() == 1) {
-//                return items.get(0).getInstruction();
-//            } else {
-//                Map<String, Collection<String>> collectionMap = tableCollector.geTableMap();
-//                int hash = collectionMap.hashCode();
-//                for (Item item : items) {
-//                    SchemaItem schemaItem = (SchemaItem) item;
-//                    if (hash == schemaItem.getTableMapHash()) {
-//                        return schemaItem.getInstruction();
-//                    }
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//}
+package cn.lightfish.dynamicSQL;
+
+import cn.lightfish.*;
+import cn.lightfish.methodFactory.AddMehodClassFactory;
+import cn.lightfish.pattern.GPattern;
+import cn.lightfish.pattern.GPatternBuilder;
+import cn.lightfish.pattern.TableCollector;
+import cn.lightfish.pattern.TableCollectorBuilder;
+
+import java.util.*;
+
+public class DynamicSQLMatcherBuilder {
+    private static long id = 0;
+    private final String dafaultSchema;
+    private final DynamicMatcherInfoBuilder dynamicMatcherInfoBuilder = new DynamicMatcherInfoBuilder();
+    private final GPatternBuilder patternBuilder = new GPatternBuilder(0);
+    private final DynamicMatcherInfoBuilder.PatternComplier patternComplier = pettern -> patternBuilder.addRule(pettern);
+    private HashMap<Integer, List<Item>> runtimeMap;
+    private HashMap<Set<SchemaTable>, SchemaItem> runtimeMap2;
+    private TableCollectorBuilder tableCollctorbuilder;
+
+    public DynamicSQLMatcherBuilder(String dafaultSchema) {
+        if (dafaultSchema != null) {
+            this.dafaultSchema = dafaultSchema.toUpperCase();
+        } else {
+            this.dafaultSchema = null;
+        }
+    }
+
+    public void addSchema(String schema, String pattern, String code) {
+        dynamicMatcherInfoBuilder.addSchema(schema, pattern, code);
+    }
+
+    public void add(String pettern, String code) {
+        dynamicMatcherInfoBuilder.add(pettern, code);
+    }
+
+    public void build(String packageName, boolean debug) throws Exception {
+        build(Collections.singletonList(packageName), debug);
+    }
+
+    public void build(List<String> packageNameList, boolean debug) throws Exception {
+        dynamicMatcherInfoBuilder.build(patternComplier);
+        this.runtimeMap = dynamicMatcherInfoBuilder.ruleInstructionMap;
+        this.runtimeMap2 = dynamicMatcherInfoBuilder.tableInstructionMap;
+        ArrayList<List<Item>> list = new ArrayList<>(runtimeMap.values());
+        list.add(new ArrayList<>(this.runtimeMap2.values()));
+        for (List<Item> value : list) {
+            for (Item item : value) {
+                String name = Instruction.class.getSimpleName() + id++;
+                String code = item.getCode();
+                AddMehodClassFactory addMehodClassFactory = new AddMehodClassFactory(name, Instruction.class);
+                addMehodClassFactory.addExpender(packageNameList, InstructionSet.class);
+                addMehodClassFactory.implMethod("execute", "java.util.Map ctx = (java.util.Map)$1;" +
+                        "cn.lightfish.dynamicSQL.DynamicSQLMatcher matcher = (cn.lightfish.dynamicSQL.DynamicSQLMatcher)$2;", code);
+                Class build = addMehodClassFactory.build(debug);
+                Instruction o = (Instruction) build.newInstance();
+                item.setInstruction(o);
+            }
+        }
+        this.tableCollctorbuilder = new TableCollectorBuilder(patternBuilder.geIdRecorder(), dynamicMatcherInfoBuilder.getTableMap());
+    }
+
+    public DynamicSQLMatcher createMatcher() {
+        TableCollector tableCollector = tableCollctorbuilder.create();
+        if (dafaultSchema != null) {
+            tableCollector.useSchema(dafaultSchema);
+        }
+        GPattern gPattern = patternBuilder.createGroupPattern(tableCollector);
+        return new DynamicSQLMatcher(tableCollector, gPattern, runtimeMap, runtimeMap2);
+    }
+
+
+}

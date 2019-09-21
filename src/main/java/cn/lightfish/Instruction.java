@@ -1,5 +1,7 @@
 package cn.lightfish;
 
+import cn.lightfish.dynamicSQL.DynamicSQLMatcher;
+
 public interface Instruction {
-    void execute($Context context);
+    <T> T execute(Object context, DynamicSQLMatcher matcher);
 }

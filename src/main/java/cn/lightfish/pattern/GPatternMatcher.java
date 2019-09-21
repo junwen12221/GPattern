@@ -18,8 +18,20 @@ import java.util.Map;
 
 public interface GPatternMatcher {
         boolean accept(GPatternSeq token);
-        public void reset();
-        public boolean acceptAll();
-        public int id();
-        public Map<String, GPatternPosition> context();
+
+        void reset();
+
+        boolean acceptAll();
+
+        int id();
+
+        Map<String, GPatternPosition> positionContext();
+
+        String getName(String name);
+
+        Map<String, String> namesContext();
+
+        Map<String, String> namesContext(Map<String, String> map);
+
+        GPatternUTF8Lexer lexer();
     }

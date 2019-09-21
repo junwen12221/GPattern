@@ -132,6 +132,10 @@ public final class TableCollector implements GPatternTokenCollector {
         return geTableMap(new HashMap<>());
     }
 
+    public boolean isMatch() {
+        return tableIndex > 0;
+    }
+
 
     interface State {
         int EXCPECT_ID = 0;

@@ -25,7 +25,7 @@ import java.util.Map;
 public interface GPatternDFG {
     int addRule(Iterator<GPatternSeq> format);
 
-    GPatternMatcher getMatcher();
+    GPatternMatcher getMatcher(GPattern gPattern);
 
     Map<String, GPatternPosition> getVariables();
 
@@ -105,8 +105,8 @@ public interface GPatternDFG {
         }
 
         @Override
-        public GPatternMatcher getMatcher() {
-            return new MatcherImpl(this);
+        public GPatternMatcher getMatcher(GPattern gPattern) {
+            return new MatcherImpl(this, gPattern.getUtf8Lexer());
         }
 
         @Override
@@ -195,11 +195,13 @@ public interface GPatternDFG {
     final class MatcherImpl implements GPatternMatcher {
         private final DFGImpl.State rootState;
         private final GPositionRecorder context;
+        private GPatternUTF8Lexer lexer;
         private DFGImpl.State state;
 
-        public MatcherImpl(DFGImpl dfg) {
+        public MatcherImpl(DFGImpl dfg, GPatternUTF8Lexer lexer) {
             this.rootState = dfg.rootState;
             this.context = new GPositionRecorder(dfg.variables);
+            this.lexer = lexer;
         }
 
         public boolean accept(GPatternToken token) {
@@ -219,8 +221,40 @@ public interface GPatternDFG {
         }
 
         @Override
-        public Map<String, GPatternPosition> context() {
+        public Map<String, GPatternPosition> positionContext() {
             return context.map;
+        }
+
+        @Override
+        public String getName(String name) {
+            GPatternPosition gPatternPosition = context.map.get(name);
+            if (gPatternPosition == null) {
+                return null;
+            } else {
+                return lexer.getString(gPatternPosition.getStart(), gPatternPosition.getEnd());
+            }
+        }
+
+        @Override
+        public Map<String, String> namesContext() {
+            return namesContext(new HashMap<>());
+        }
+
+        @Override
+        public Map<String, String> namesContext(Map<String, String> res) {
+            for (Map.Entry<String, GPatternPosition> entry : this.positionContext().entrySet()) {
+                GPatternPosition value = entry.getValue();
+                if (value.end < 0) {
+                    continue;
+                }
+                res.put(entry.getKey(), lexer.getString(value.start, value.end));
+            }
+            return res;
+        }
+
+        @Override
+        public GPatternUTF8Lexer lexer() {
+            return lexer;
         }
 
         @Override

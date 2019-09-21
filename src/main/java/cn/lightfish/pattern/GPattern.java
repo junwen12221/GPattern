@@ -35,7 +35,7 @@ public class GPattern {
         this.idRecorder = copyRecorder;
         this.collector = collector;
         this.utf8Lexer = new GPatternUTF8Lexer(this.idRecorder);
-        this.matcher = dfg.getMatcher();
+        this.matcher = dfg.getMatcher(this);
     }
 
     public GPatternMatcher matcher(String pattern) {
@@ -93,7 +93,7 @@ public class GPattern {
 
     public Map<String, String> toContextMap(GPatternMatcher matcher) {
         Map<String, String> res = new HashMap<>();
-        for (Map.Entry<String, GPatternPosition> entry : matcher.context().entrySet()) {
+        for (Map.Entry<String, GPatternPosition> entry : matcher.positionContext().entrySet()) {
             GPatternPosition value = entry.getValue();
             if (value.end < 0) {
                 continue;

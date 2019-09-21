@@ -18,7 +18,8 @@ public class DynamicMatcherInfoBuilderTest {
         DynamicMatcherInfoBuilder builder = new DynamicMatcherInfoBuilder();
         builder.add("{any};{any1};", "code");
         builder.addSchema("DB1.TABLE1,DB2.TABLE2", "select {any2}", "code1");
-        HashMap<Integer, List<Item>> map = builder.build(pettern -> patternBuilder.addRule(pettern));
+        builder.build(pettern -> patternBuilder.addRule(pettern));
+        HashMap<Integer, List<Item>> map = builder.ruleInstructionMap;
         Map<String, Collection<String>> tableMap = builder.getTableMap();
         Assert.assertTrue(tableMap.get("DB1").contains("TABLE1"));
         Assert.assertTrue(tableMap.get("DB2").contains("TABLE2"));
@@ -32,7 +33,8 @@ public class DynamicMatcherInfoBuilderTest {
         DynamicMatcherInfoBuilder builder = new DynamicMatcherInfoBuilder();
         builder.add("{any};{any1};", "code");
         builder.addSchema("DB1.TABLE1,DB2.TABLE2", "{any};{any1};", "code1");
-        HashMap<Integer, List<Item>> map = builder.build(pettern -> patternBuilder.addRule(pettern));
+        builder.build(pettern -> patternBuilder.addRule(pettern));
+        HashMap<Integer, List<Item>> map = builder.ruleInstructionMap;
     }
 
     @Test(expected = GPatternException.PatternConflictException.class)
@@ -41,7 +43,8 @@ public class DynamicMatcherInfoBuilderTest {
         DynamicMatcherInfoBuilder builder = new DynamicMatcherInfoBuilder();
         builder.add("{any};{any1};", "code");
         builder.add("{any};{any1};", "code");
-        HashMap<Integer, List<Item>> map = builder.build(pettern -> patternBuilder.addRule(pettern));
+        builder.build(pettern -> patternBuilder.addRule(pettern));
+        HashMap<Integer, List<Item>> map = builder.ruleInstructionMap;
     }
 
     @Test(expected = GPatternException.PatternConflictException.class)
@@ -50,7 +53,17 @@ public class DynamicMatcherInfoBuilderTest {
         DynamicMatcherInfoBuilder builder = new DynamicMatcherInfoBuilder();
         builder.addSchema("DB1.TABLE1,DB2.TABLE2", "{any};{any1};", "code1");
         builder.addSchema("DB1.TABLE1,DB2.TABLE2", "{any};{any1};", "code1");
-        HashMap<Integer, List<Item>> map = builder.build(pettern -> patternBuilder.addRule(pettern));
+        builder.build(pettern -> patternBuilder.addRule(pettern));
+        HashMap<Integer, List<Item>> map = builder.ruleInstructionMap;
     }
 
+    @Test(expected = GPatternException.PatternConflictException.class)
+    public void test5() {
+        GPatternBuilder patternBuilder = new GPatternBuilder(0);
+        DynamicMatcherInfoBuilder builder = new DynamicMatcherInfoBuilder();
+        builder.addSchema("DB1.TABLE1,DB2.TABLE2", null, "code1");
+        builder.addSchema("DB1.TABLE1,DB2.TABLE2", null, "code1");
+        builder.build(pettern -> patternBuilder.addRule(pettern));
+        HashMap<Integer, List<Item>> map = builder.ruleInstructionMap;
+    }
 }
