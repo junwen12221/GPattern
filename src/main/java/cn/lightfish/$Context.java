@@ -2,7 +2,7 @@ package cn.lightfish;
 
 import java.util.HashMap;
 
-public abstract class $Context {
+public class $Context {
     final HashMap<Byte, Object> context = new HashMap<>();
 
     public <T> T put(Byte key, T value) {

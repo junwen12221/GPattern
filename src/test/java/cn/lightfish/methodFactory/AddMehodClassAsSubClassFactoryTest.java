@@ -11,7 +11,7 @@ import java.lang.reflect.Method;
 
 public class AddMehodClassAsSubClassFactoryTest {
     @Test
-    public void test() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException {
+    public void test() throws Exception {
         AddMehodClassFactory factory = new AddMehodClassFactory("Name", $Context.class);
         Class o = factory.build(false);
         Object o1 = o.newInstance();
@@ -20,7 +20,7 @@ public class AddMehodClassAsSubClassFactoryTest {
     }
 
     @Test
-    public void test1() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException {
+    public void test1() throws Exception{
         AddMehodClassFactory factory = new AddMehodClassFactory("Name1", $Context.class);
         Class o = factory.build(true);
         Object o1 = o.newInstance();
@@ -28,7 +28,7 @@ public class AddMehodClassAsSubClassFactoryTest {
     }
 
     @Test
-    public void test2() throws NotFoundException, CannotCompileException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    public void test2() throws Exception {
         AddMehodClassFactory factory = new AddMehodClassFactory("Name2", $Context.class);
         factory.addMethod("public String name(){return \"hello\";}");
         Class o = factory.build(true);
@@ -36,5 +36,27 @@ public class AddMehodClassAsSubClassFactoryTest {
         Method name = o1.getClass().getDeclaredMethod("name");
         String value = (String) name.invoke(o1);
         Assert.assertEquals("hello", value);
+    }
+
+    @Test
+    public void test3() throws Exception {
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name3", $Context.class);
+        factory.addExpender(TestExpenderCollection.class);
+        Class o = factory.build(true);
+        Object o1 = o.newInstance();
+        Method name = o1.getClass().getDeclaredMethod("name");
+        String value = (String) name.invoke(o1);
+        Assert.assertEquals("name", value);
+    }
+
+    @Test
+    public void test4() throws Exception {
+        AddMehodClassFactory factory = new AddMehodClassFactory("Name4", $Context.class);
+        factory.addExpender("cn.lightfish.methodFactory",TestExpenderInterface.class);
+        Class o = factory.build(true);
+        Object o1 = o.newInstance();
+        Method name = o1.getClass().getDeclaredMethod("name");
+        String value = (String) name.invoke(o1);
+        Assert.assertEquals("name", value);
     }
 }
