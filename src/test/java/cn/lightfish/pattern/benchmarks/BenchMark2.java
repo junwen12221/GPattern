@@ -8,6 +8,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.Collection;
 import java.util.HashMap;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class BenchMark2 {
     public static final ByteBuffer password = StandardCharsets.UTF_8.encode("SELECT a FROM ab             , ee.ff AS f,(SELECT a FROM `schema_bb`.`tbl_bb`,(SELECT a FROM ccc AS c, `dddd`));");
 

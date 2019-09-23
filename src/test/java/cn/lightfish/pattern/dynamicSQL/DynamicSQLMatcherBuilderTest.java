@@ -7,6 +7,11 @@ import org.junit.Test;
 
 import java.util.HashMap;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class DynamicSQLMatcherBuilderTest {
 
     @Test

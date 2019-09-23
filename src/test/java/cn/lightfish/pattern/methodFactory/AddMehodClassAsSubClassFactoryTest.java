@@ -6,6 +6,11 @@ import org.junit.Test;
 
 import java.lang.reflect.Method;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class AddMehodClassAsSubClassFactoryTest {
     @Test
     public void test() throws Exception {

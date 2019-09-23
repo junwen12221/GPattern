@@ -19,6 +19,11 @@ import org.junit.Test;
 
 import java.util.Map;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPatternRuleTest {
     @Test
     public void test() {

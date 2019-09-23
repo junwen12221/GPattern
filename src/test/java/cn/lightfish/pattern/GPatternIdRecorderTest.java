@@ -22,6 +22,11 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPatternIdRecorderTest {
 
     @Test

@@ -9,6 +9,11 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPatternCollectorTest {
     Map<String, Collection<String>> infos = new HashMap<>();
 
