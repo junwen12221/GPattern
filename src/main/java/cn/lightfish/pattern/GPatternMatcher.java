@@ -16,6 +16,11 @@ package cn.lightfish.pattern;
 
 import java.util.Map;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public interface GPatternMatcher {
         boolean accept(GPatternSeq token);
 

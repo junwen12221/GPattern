@@ -22,6 +22,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public interface GPatternDFG {
     int addRule(Iterator<GPatternSeq> format);
 

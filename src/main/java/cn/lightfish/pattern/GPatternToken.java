@@ -19,6 +19,11 @@ import lombok.ToString;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 @ToString
 public final class GPatternToken implements Cloneable, GPatternSeq {
     int hash;

@@ -14,12 +14,13 @@
  */
 package cn.lightfish.pattern;
 
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public interface GPatternIdRecorder {
     void startRecordTokenChar(int startOffset);
 
@@ -27,13 +28,13 @@ public interface GPatternIdRecorder {
 
     void endRecordTokenChar(int endOffset);
 //    void rangeRecordTokenChar(int startOfffset,int endOffset);
-    public GPatternToken createConstToken(String keywordText);
+GPatternToken createConstToken(String keywordText);
 
     GPatternToken toCurToken();
 
     GPatternIdRecorder createCopyRecorder();
 
-    public void load(Set<String> set);
+    void load(Set<String> set);
 
     GPatternToken getConstToken(String a);
 

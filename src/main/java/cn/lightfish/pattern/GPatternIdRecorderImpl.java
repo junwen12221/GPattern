@@ -9,6 +9,11 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public final class GPatternIdRecorderImpl implements GPatternIdRecorder {
     final static int WORD_LENGTH = 64;
     final IntObjectHashMap<GPatternToken> longTokenHashMap = IntObjectHashMap.newMap();

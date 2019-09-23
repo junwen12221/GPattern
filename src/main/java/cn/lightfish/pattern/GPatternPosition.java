@@ -16,6 +16,11 @@ package cn.lightfish.pattern;
 
 import lombok.Data;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 @Data
 public class GPatternPosition {
     int start;

@@ -20,6 +20,11 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Set;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPatternBuilder {
     private final GPatternIdRecorder idRecorder;
     private final GPatternUTF8Lexer utf8Lexer;

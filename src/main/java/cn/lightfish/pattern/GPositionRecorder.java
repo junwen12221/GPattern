@@ -17,6 +17,11 @@ package cn.lightfish.pattern;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPositionRecorder {
     final HashMap<String, GPatternPosition> map = new HashMap<>();
     GPatternPosition currentPosition;

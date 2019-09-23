@@ -16,6 +16,11 @@ package cn.lightfish;
 
 import java.text.MessageFormat;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPatternException extends UnsupportedOperationException {
     public GPatternException(String pattern, Object... args) {
         super(MessageFormat.format(pattern, args));

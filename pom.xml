@@ -149,6 +149,12 @@
             <version>3.25.0-GA</version>
             <systemPath>${project.basedir}/lib/javassist.jar</systemPath>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/org.codehaus.janino/janino -->
+        <dependency>
+            <groupId>org.codehaus.janino</groupId>
+            <artifactId>janino</artifactId>
+            <version>3.1.0</version>
+        </dependency>
 
     </dependencies>
     <build>

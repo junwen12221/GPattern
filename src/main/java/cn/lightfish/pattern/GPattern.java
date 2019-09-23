@@ -22,6 +22,11 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPattern {
     private final GPatternIdRecorder idRecorder;
     private final GPatternUTF8Lexer utf8Lexer;

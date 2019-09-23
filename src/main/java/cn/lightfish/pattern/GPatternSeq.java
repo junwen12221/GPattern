@@ -14,6 +14,11 @@
  */
 package cn.lightfish.pattern;
 
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public interface GPatternSeq {
     String getSymbol();
 

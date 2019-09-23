@@ -1,7 +1,3 @@
-package cn.lightfish.pattern;
-
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 
 /**
  * Copyright (C) <2019>  <chen junwen>
@@ -17,6 +13,16 @@ import java.nio.charset.StandardCharsets;
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
+package cn.lightfish.pattern;
+
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
+
+/**
+ * https://github.com/junwen12221/GPattern.git
+ *
+ * @author Junwen Chen
+ **/
 public class GPatternUTF8LexerBackup {
     ByteBuffer buffer;
     int limit = 0;
