@@ -14,7 +14,6 @@
  */
 package cn.lightfish.pattern;
 
-import cn.lightfish.GPatternException;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import org.jetbrains.annotations.NotNull;
 

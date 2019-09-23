@@ -1,7 +1,7 @@
-package cn.lightfish.dynamicSQL;
+package cn.lightfish.pattern.dynamicSQL;
 
-import cn.lightfish.Instruction;
-import cn.lightfish.InstructionSetImpl;
+import cn.lightfish.pattern.Instruction;
+import cn.lightfish.pattern.InstructionSetImpl;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ public class DynamicSQLMatcherBuilderTest {
         builder.add("select 1;", "return Integer.valueOf(1);");
         builder.addSchema("DB1.TABLE,DB2.TABLE2", "select * from {tables}", "return Integer.valueOf(2);");
         builder.addSchema("DB1.TABLE,DB2.TABLE2", null, "return Integer.valueOf(3);");
-        builder.build("cn.lightfish.methodFactory", false);
+        builder.build("cn.lightfish.pattern.methodFactory", false);
         DynamicSQLMatcher dynamicSQLMatcher = builder.createMatcher();
 
         Assert.assertEquals(Integer.valueOf(0), dynamicSQLMatcher.match("select DB2.TABLE2.id from DB1.TABLE,DB2.TABLE2").execute(null, dynamicSQLMatcher));

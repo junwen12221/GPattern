@@ -12,9 +12,9 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish.dynamicSQL;
+package cn.lightfish.pattern.dynamicSQL;
 
-import cn.lightfish.*;
+import cn.lightfish.pattern.*;
 
 import java.util.*;
 

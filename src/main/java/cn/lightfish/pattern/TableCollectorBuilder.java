@@ -14,7 +14,6 @@
  */
 package cn.lightfish.pattern;
 
-import cn.lightfish.GPatternException;
 import org.eclipse.collections.impl.map.mutable.primitive.IntObjectHashMap;
 
 import java.util.*;

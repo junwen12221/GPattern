@@ -1,6 +1,6 @@
-package cn.lightfish.methodFactory;
+package cn.lightfish.pattern.methodFactory;
 
-import cn.lightfish.Instruction;
+import cn.lightfish.pattern.Instruction;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -49,7 +49,7 @@ public class AddMehodClassAsSubClassFactoryTest {
     @Test
     public void test4() throws Exception {
         AddMehodClassFactory factory = new AddMehodClassFactory("Name4", Object.class);
-        factory.addExpender("cn.lightfish.methodFactory", TestExpenderInterface.class);
+        factory.addExpender("cn.lightfish.pattern.methodFactory", TestExpenderInterface.class);
         Class o = factory.build(true);
         Object o1 = o.newInstance();
         Method name = o1.getClass().getDeclaredMethod("name");

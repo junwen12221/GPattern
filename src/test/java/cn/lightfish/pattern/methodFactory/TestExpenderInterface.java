@@ -1,4 +1,4 @@
-package cn.lightfish.methodFactory;
+package cn.lightfish.pattern.methodFactory;
 
 public interface TestExpenderInterface {
 

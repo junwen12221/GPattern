@@ -12,14 +12,28 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish;
+package cn.lightfish.pattern;
 
-import cn.lightfish.dynamicSQL.DynamicSQLMatcher;
+import cn.lightfish.pattern.dynamicSQL.DynamicSQLMatcher;
+
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * https://github.com/junwen12221/GPattern.git
+ *
  * @author Junwen Chen
  **/
-public interface Instruction {
-    <T> T execute(Object context, DynamicSQLMatcher matcher);
+public class InstructionSetImpl implements InstructionSet {
+    public static String toUpperCase(Map map, Object key) {
+        return Objects.toString(map.get(key)).toUpperCase();
+    }
+
+    public static Byte one() {
+        return Byte.valueOf((byte) 1);
+    }
+
+    public static String getNameAsString(DynamicSQLMatcher matcher, String key) {
+        return matcher.getResult().getName(key);
+    }
 }

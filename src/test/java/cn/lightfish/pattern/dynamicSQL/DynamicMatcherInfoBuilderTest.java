@@ -1,8 +1,8 @@
-package cn.lightfish.dynamicSQL;
+package cn.lightfish.pattern.dynamicSQL;
 
-import cn.lightfish.GPatternException;
-import cn.lightfish.Item;
 import cn.lightfish.pattern.GPatternBuilder;
+import cn.lightfish.pattern.GPatternException;
+import cn.lightfish.pattern.Item;
 import org.junit.Assert;
 import org.junit.Test;
 

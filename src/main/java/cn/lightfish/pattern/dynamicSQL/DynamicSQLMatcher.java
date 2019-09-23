@@ -12,16 +12,9 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish.dynamicSQL;
+package cn.lightfish.pattern.dynamicSQL;
 
-import cn.lightfish.Instruction;
-import cn.lightfish.Item;
-import cn.lightfish.SchemaItem;
-import cn.lightfish.SchemaTable;
-import cn.lightfish.pattern.GPattern;
-import cn.lightfish.pattern.GPatternMatcher;
-import cn.lightfish.pattern.GPatternUTF8Lexer;
-import cn.lightfish.pattern.TableCollector;
+import cn.lightfish.pattern.*;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

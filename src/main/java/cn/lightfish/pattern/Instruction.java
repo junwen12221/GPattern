@@ -12,21 +12,14 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish;
+package cn.lightfish.pattern;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import cn.lightfish.pattern.dynamicSQL.DynamicSQLMatcher;
 
-@ToString
-@EqualsAndHashCode
-@AllArgsConstructor
 /**
  * https://github.com/junwen12221/GPattern.git
  * @author Junwen Chen
  **/
-public class SchemaTable {
-    String schemaName;
-    String tableName;
+public interface Instruction {
+    <T> T execute(Object context, DynamicSQLMatcher matcher);
 }
-

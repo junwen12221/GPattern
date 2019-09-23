@@ -14,7 +14,6 @@
  */
 package cn.lightfish.pattern;
 
-import cn.lightfish.GPatternException;
 import org.junit.Assert;
 import org.junit.Test;
 

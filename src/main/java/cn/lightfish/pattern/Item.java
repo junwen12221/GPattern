@@ -12,12 +12,45 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish;
+package cn.lightfish.pattern;
 
 /**
  * https://github.com/junwen12221/GPattern.git
  *
  * @author Junwen Chen
  **/
-public interface InstructionSet {
+public abstract class Item {
+    String pettern;
+    String code;
+    Instruction instruction;
+
+    public Item(String pettern, String code) {
+        this.pettern = pettern;
+        this.code = code;
+    }
+
+    public String getPettern() {
+        return pettern;
+    }
+
+    public String getCode() {
+        return code;
+    }
+
+    public Instruction getInstruction() {
+        return instruction;
+    }
+
+    public void setInstruction(Instruction instruction) {
+        this.instruction = instruction;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{" +
+                "pettern='" + pettern + '\'' +
+                ", code='" + code + '\'' +
+                ", instruction=" + instruction +
+                '}';
+    }
 }

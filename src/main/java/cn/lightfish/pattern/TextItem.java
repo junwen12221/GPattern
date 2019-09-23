@@ -12,7 +12,7 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish;
+package cn.lightfish.pattern;
 
 /**
  * https://github.com/junwen12221/GPattern.git

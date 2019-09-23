@@ -12,14 +12,10 @@
  * You should have received a copy of the GNU General Public License along with this program.  If
  * not, see <http://www.gnu.org/licenses/>.
  */
-package cn.lightfish.dynamicSQL;
+package cn.lightfish.pattern.dynamicSQL;
 
-import cn.lightfish.*;
-import cn.lightfish.methodFactory.AddMehodClassFactory;
-import cn.lightfish.pattern.GPattern;
-import cn.lightfish.pattern.GPatternBuilder;
-import cn.lightfish.pattern.TableCollector;
-import cn.lightfish.pattern.TableCollectorBuilder;
+import cn.lightfish.pattern.*;
+import cn.lightfish.pattern.methodFactory.AddMehodClassFactory;
 
 import java.util.*;
 
@@ -70,7 +66,7 @@ public class DynamicSQLMatcherBuilder {
                 AddMehodClassFactory addMehodClassFactory = new AddMehodClassFactory(name, Instruction.class);
                 addMehodClassFactory.addExpender(packageNameList, InstructionSet.class);
                 addMehodClassFactory.implMethod("execute", "java.util.Map ctx = (java.util.Map)$1;" +
-                        "cn.lightfish.dynamicSQL.DynamicSQLMatcher matcher = (cn.lightfish.dynamicSQL.DynamicSQLMatcher)$2;", code);
+                        "cn.lightfish.pattern.dynamicSQL.DynamicSQLMatcher matcher = (cn.lightfish.pattern.dynamicSQL.DynamicSQLMatcher)$2;", code);
                 Class build = addMehodClassFactory.build(debug);
                 Instruction o = (Instruction) build.newInstance();
                 item.setInstruction(o);
