@@ -15,7 +15,6 @@
 package cn.lightfish.pattern;
 
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
-import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -171,7 +170,6 @@ public interface GPatternDFG {
                 return null;
             }
 
-            @NotNull
             private State wildCardMatch(GPatternToken token, int startOffset, int endOffset, MatcherImpl map) {
                 State accept = matcher.accept(token, startOffset, endOffset, map);
                 if (accept != null) {

@@ -14,8 +14,6 @@
  */
 package cn.lightfish.pattern;
 
-import cn.lightfish.pattern.dynamicSQL.DynamicSQLMatcher;
-
 import java.util.Map;
 import java.util.Objects;
 

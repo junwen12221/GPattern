@@ -14,8 +14,6 @@
  */
 package cn.lightfish.pattern;
 
-import cn.lightfish.pattern.dynamicSQL.DynamicSQLMatcher;
-
 /**
  * https://github.com/junwen12221/GPattern.git
  * @author Junwen Chen

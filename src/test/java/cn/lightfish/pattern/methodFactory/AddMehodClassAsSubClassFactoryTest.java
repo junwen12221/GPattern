@@ -1,5 +1,6 @@
 package cn.lightfish.pattern.methodFactory;
 
+import cn.lightfish.pattern.AddMehodClassFactory;
 import cn.lightfish.pattern.Instruction;
 import org.junit.Assert;
 import org.junit.Test;

@@ -1,5 +1,7 @@
 package cn.lightfish.pattern.dynamicSQL;
 
+import cn.lightfish.pattern.DynamicSQLMatcher;
+import cn.lightfish.pattern.DynamicSQLMatcherBuilder;
 import cn.lightfish.pattern.Instruction;
 import cn.lightfish.pattern.InstructionSetImpl;
 import org.junit.Assert;
