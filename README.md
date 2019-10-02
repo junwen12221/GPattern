@@ -44,7 +44,7 @@ Assert.assertEquals("travelrecord", gPattern.toContextMap(matcher).get("table"))
 
 注释用来在源码中增加提示、笔记、建议、警告等信息.这些信息在词法分析中会被忽略.
 
-##### **单行注释（**single-line comment）
+##### 单行注释（single-line comment）
 
 ```
 -- 单行注释
@@ -52,7 +52,7 @@ Assert.assertEquals("travelrecord", gPattern.toContextMap(matcher).get("table"))
 # 单行注释
 ```
 
-##### **多行注释（**multiple-line comment）
+##### 多行注释（multiple-line comment）
 
 ```
 /* 多行注释 */
