@@ -1,16 +1,20 @@
-# GPattern模式匹配
+# GPattern pattern matching
 
-author:junwen 2019-10-2
+Author:junwen 2019-10-2
 
-qq:294712221
+Qq:294712221
 
 <https://github.com/junwen12221/GPattern>
 
-## 快速入门
+中文介绍
+
+https://github.com/junwen12221/GPattern/README-CN.md
+
+## Quick Start
 
 ```java
 GPatternBuilder patternBuilder = new GPatternBuilder(0);
-int id = patternBuilder.addRule("SELECT id FROM {table} LIMIT 1;");
+Int id = patternBuilder.addRule("SELECT id FROM {table} LIMIT 1;");
 GPattern gPattern = patternBuilder.createGroupPattern();
 GPatternMatcher matcher = gPattern.matcher("SELECT id FROM travelrecord LIMIT 1;");
 Assert.assertTrue(matcher.acceptAll());
@@ -20,17 +24,17 @@ Assert.assertEquals("travelrecord", gPattern.toContextMap(matcher).get("table"))
 
 
 
-## 词法分析器
+## lexical analyzer
 
-#### 目标
+#### aims
 
-按照以下词法规则把UTF8或者ASCII的字节数组分组成多个词法单元
+UTF8 or ASCII byte count components into multiple lexical units according to the following lexical rules
 
 
 
-#### 空格
+#### Space
 
-空格分隔词法单元
+Space-separated lexical unit
 
 ```
  
@@ -40,45 +44,45 @@ Assert.assertEquals("travelrecord", gPattern.toContextMap(matcher).get("table"))
 
 
 
-#### 注释
+#### Comments
 
-注释用来在源码中增加提示、笔记、建议、警告等信息.这些信息在词法分析中会被忽略.
+Comments are used to add hints, notes, suggestions, warnings, etc. to the source code. These information are ignored in lexical analysis.
 
-##### 单行注释（single-line comment）
-
-```
--- 单行注释
-// 单行注释
-# 单行注释
-```
-
-##### 多行注释（multiple-line comment）
+##### Single line comment (single-line comment)
 
 ```
-/* 多行注释 */
-/* 
+-- Single line comment
+// single line comment
+#单行注
+```
 
-多行注释 
+##### Multi-line comment (multiple-line comment)
+
+```
+/* Multi-line comments */
+/*
+
+Multi-line comment
 
 */
 ```
 
 
 
-### 词法单元(Token)
+### lexical unit (Token)
 
-#### 直接量
+##### Direct quantity
 
-直接量仅支持ASCII字符
+Direct quantities only support ASCII characters
 
-##### 字符串直接量
+##### String Direct Quantity
 
 ```
 'id'
 "id"
 ```
 
-**转义字符串直接量**
+##### escaped string direct quantity
 
 ```
 `id`
@@ -86,99 +90,99 @@ Assert.assertEquals("travelrecord", gPattern.toContextMap(matcher).get("table"))
 
 
 
-#### 标识符
+#### Identifier
 
-标识模式中的ASCII直接量字符序列。
+Identifies the sequence of ASCII direct quantifiers in the pattern.
 
-##### 单一字符
+##### Single character
 
-以空格分隔的长度是1的ASCII字符
+ASCII characters separated by spaces and length 1
 
-##### 字符序列
+##### Character sequence
 
-以空格分隔的包含字母或数字或下划线（“_”）或美元符号（“$”）的字符序列(长度大于1)的ASCII字符
-
-
-
-#### 大小写
-
-默认忽略大小写,把大小转换成小写,可以关闭此特性
+A space-separated sequence of characters containing letters or numbers or underscores ("_") or dollar signs ("$") (length greater than 1)
 
 
 
-## 模式匹配
+#### Uppercase
 
-### 名称捕获
-
-捕获多个或者一个词法单元,把它们在字节数组中的开始位置,结束位置保存,可以根据名称获取它们在字节数组中的范围
-
-{name},其中name必须是ASCII字符
-
-待匹配字节数组允许UTF8字符
+By default case is ignored, the size is converted to lowercase, you can turn off this feature
 
 
 
-##### 一个词法单元捕获
+## pattern matching
 
-模式：
+### Name capture
+
+Capture multiple or one lexical units, save them at the beginning and end of the byte array, and get their range in the byte array by name
+
+{name}, where name must be an ASCII character
+
+The byte array to be matched allows UTF8 characters
+
+
+
+##### A lexical unit capture
+
+mode:
 
 ```
 SELECT id FROM {table} LIMIT 1;
 ```
 
-待匹配字符串
+Pending string
 
 ```
 SELECT id FROM travelrecord LIMIT 1;
 ```
 
-可以根据name获得travelrecord
+You can get travelrecord according to name
 
 
 
-##### 多个词法单元捕获
+##### Multiple lexical unit capture
 
-待匹配字符串
-
-```
-SELECT id FROM travelrecord ，travelrecord2 LIMIT 1;
-```
-
-可以根据name获得
-
-travelrecord ，travelrecord2
-
-
-
-##### 直接量优先匹配
-
-模式：
+Pending string
 
 ```
-SELECT id FROM {table} LIMIT 1;// 模式1 
-SELECT id FROM {table} LIMIT {n};// 模式2
+SELECT id FROM travelrecord , travelrecord2 LIMIT 1;
 ```
 
-待匹配字符串
+Can be obtained by name
+
+Travelrecord ,travelrecord2
+
+
+
+##### Direct quantity priority matching
+
+mode:
+
+```
+SELECT id FROM {table} LIMIT 1;// Mode 1
+SELECT id FROM {table} LIMIT {n};// mode 2
+```
+
+Pending string
 
 ```
 SELECT id FROM travelrecord LIMIT 1;
 ```
 
-模式1匹配
+Mode 1 match
 
 
 
-## 模式ID
+## pattern ID
 
 ```java
 GPatternBuilder patternBuilder = new GPatternBuilder(0);
-int id = patternBuilder.addRule("{any} FROM travelrecord  {any2}");//一个模式对应一个id
+int id = patternBuilder.addRule("{any} FROM travelrecord {any2}");//the mode corresponds to an id
 GPattern gPattern = patternBuilder.createGroupPattern();
 GPatternMatcher matcher = gPattern.matcher("SELECT id FROM travelrecord LIMIT 1");
 Assert.assertTrue(matcher.acceptAll());
 Assert.assertEquals(0, id);
-Assert.assertEquals(id, matcher.id());//模式匹配成功后,可以根据匹配器获取模式对应的id
+Assert.assertEquals(id, matcher.id());// After the pattern matching is successful, the id corresponding to the mode can be obtained according to the matcher.
 Map<String, String> map = gPattern.toContextMap(matcher);
 Assert.assertEquals("SELECT id", map.get("any"));
 Assert.assertEquals("LIMIT 1", map.get("any2"));
@@ -188,13 +192,11 @@ Assert.assertEquals("LIMIT 1", map.get("any2"));
 
 GPLv3
 
-[![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png)](http://creativecommons.org/licenses/by-sa/4.0/)
 
-This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License](http://creativecommons.org/licenses/by-sa/4.0/).
+
+![Creative Commons License](https://i.creativecommons.org/l/by-sa/4.0/88x31.png) (http://creativecommons.org/licenses/by-sa/4.0/)
+
+This work is licensed under a [Creative Commons Attribution-ShareAlike 4.0 International License] (http://creativecommons.org/licenses/by-sa/4.0/).
 
 ------
-
-
-
-
 
