@@ -2,12 +2,8 @@ package cn.lightfish.pattern.dynamicSQL;
 
 import cn.lightfish.pattern.DynamicSQLMatcher;
 import cn.lightfish.pattern.DynamicSQLMatcherBuilder;
-import cn.lightfish.pattern.Instruction;
-import cn.lightfish.pattern.InstructionSetImpl;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashMap;
 
 /**
  * https://github.com/junwen12221/GPattern.git
@@ -32,19 +28,19 @@ public class DynamicSQLMatcherBuilderTest {
         Assert.assertNull(dynamicSQLMatcher.match("select 2;"));
         Assert.assertEquals(Integer.valueOf(3), dynamicSQLMatcher.match("select DB1.TABLE.id,DB2.TABLE2.id from DB1.TABLE,DB2.TABLE2").execute(null, dynamicSQLMatcher));
     }
-
-    @Test
-    public void test1() throws Exception {
-        DynamicSQLMatcherBuilder builder = new DynamicSQLMatcherBuilder(null);
-        builder.add("select {n};", "return toUpperCase(ctx,one())+getNameAsString(matcher,\"n\");");
-        builder.build("cn.lightfish", false);
-        DynamicSQLMatcher dynamicSQLMatcher = builder.createMatcher();
-        Instruction match = dynamicSQLMatcher.match("select 1;");
-        HashMap<Byte, Object> objectObjectHashMap = new HashMap<>();
-        objectObjectHashMap.put(InstructionSetImpl.one(), "a");
-        Object execute = match.execute(objectObjectHashMap, dynamicSQLMatcher);
-        Assert.assertEquals("A1", execute);
-    }
+//
+//    @Test
+//    public void test1() throws Exception {
+//        DynamicSQLMatcherBuilder builder = new DynamicSQLMatcherBuilder(null);
+//        builder.add("select {n};", "return toUpperCase(ctx,\"1\")+getNameAsString(matcher,\"n\");");
+//        builder.build("io.mycat", false);
+//        DynamicSQLMatcher dynamicSQLMatcher = builder.createMatcher();
+//        Instruction match = dynamicSQLMatcher.match("select 1;");
+//        HashMap<Byte, Object> objectObjectHashMap = new HashMap<>();
+//        objectObjectHashMap.put(InstructionSetImpl.one(), "a");
+//        Object execute = match.execute(objectObjectHashMap, dynamicSQLMatcher);
+//        Assert.assertEquals("A1", execute);
+//    }
 
 
 }

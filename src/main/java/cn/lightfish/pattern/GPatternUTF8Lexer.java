@@ -28,6 +28,7 @@ public class GPatternUTF8Lexer {
     ByteBuffer buffer;
     int limit = 0;
     int position = 0;
+    public static int ignorelength = 4;
     private final GPatternIdRecorder idRecorder;
     public static final int DEMO = 128;
 
@@ -41,10 +42,32 @@ public class GPatternUTF8Lexer {
         init(byteBuffer, 0, byteBuffer.limit());
     }
 
-    public void init(ByteBuffer buffer, int startOffset, int limit) {
-        this.buffer = buffer;
-        this.position = startOffset;
-        this.limit = limit;
+    static {
+        for (int i = '0'; i <= '9'; i++) {
+            HANDLER[i] = ID_HANDLER;
+        }
+        for (int i = 'A'; i <= 'Z'; i++) {
+            HANDLER[i] = ID_HANDLER;
+        }
+        for (int c = 'a'; c <= 'z'; c++) {
+            HANDLER[c] = ID_HANDLER;
+        }
+        HANDLER['`'] = KEYWORD_HANDLER;
+        HANDLER['_'] = ID_HANDLER;
+        HANDLER['$'] = ID_HANDLER;
+        HANDLER[DEMO] = ID_HANDLER;
+
+        HANDLER[' '] = BLANK_SPACE_HANDLER;
+        HANDLER['\t'] = BLANK_SPACE_HANDLER;
+        HANDLER['\f'] = BLANK_SPACE_HANDLER;
+        HANDLER['\r'] = BLANK_SPACE_HANDLER;
+        HANDLER[11] = BLANK_SPACE_HANDLER;// \v
+
+        HANDLER['#'] = SHARP_HANLDER;
+        HANDLER['\''] = STRING_HANLDER;
+        HANDLER['\"'] = STRING_HANLDER;
+        HANDLER['/'] = LEFT_SLASH_HANDLER;
+        HANDLER['-'] = DASH_HANDLER;
     }
 
     public boolean nextToken() {
@@ -151,28 +174,7 @@ public class GPatternUTF8Lexer {
     final static int DASH_HANDLER = 5;
     final static int SHARP_HANLDER = 6;
 
-    static {
-        for (int i = '0'; i <= '9'; i++) {
-            HANDLER[i] = ID_HANDLER;
-        }
-        for (int i = 'A'; i <= 'Z'; i++) {
-            HANDLER[i] = ID_HANDLER;
-        }
-        for (int c = 'a'; c <= 'z'; c++) {
-            HANDLER[c] = ID_HANDLER;
-        }
-        HANDLER['`'] = KEYWORD_HANDLER;
-        HANDLER['_'] = ID_HANDLER;
-        HANDLER['$'] = ID_HANDLER;
-        HANDLER[DEMO] = ID_HANDLER;
-
-        HANDLER[' '] = BLANK_SPACE_HANDLER;
-        HANDLER['#'] = SHARP_HANLDER;
-        HANDLER['\''] = STRING_HANLDER;
-        HANDLER['\"'] = STRING_HANLDER;
-        HANDLER['/'] = LEFT_SLASH_HANDLER;
-        HANDLER['-'] = DASH_HANDLER;
-    }
+    int startOffset;
 
     private boolean isIdChar(int c) {
         return HANDLER[c] == ID_HANDLER;
@@ -246,19 +248,24 @@ public class GPatternUTF8Lexer {
         return new String(bytes, StandardCharsets.UTF_8);
     }
 
+    public void init(ByteBuffer buffer, int startOffset, int limit) {
+        this.buffer = buffer;
+        this.startOffset = this.position = startOffset;
+        this.limit = limit;
+    }
+
     public boolean fastEquals(int startOffset, int endOffset, byte[] symbol) {
-        if (buffer.hasArray()) {
+        if (buffer.hasArray() && symbol.length > ignorelength) {
             byte[] array = buffer.array();
             return arrayEquals(startOffset, endOffset, symbol, array);
         } else {
             return directEquals(startOffset, endOffset, symbol);
         }
-
     }
 
     private boolean directEquals(int startOffset, int endOffset, byte[] symbol) {
         int length = symbol.length;
-        for (int j = 4; j < length; j++) {
+        for (int j = ignorelength; j < length; j++) {
             if (buffer.get(startOffset + j) != symbol[j]) {
                 return false;
             }
@@ -268,7 +275,7 @@ public class GPatternUTF8Lexer {
 
     private boolean arrayEquals(int startOffset, int endOffset, byte[] symbol, byte[] array) {
         int length = symbol.length;
-        for (int j = 4; j < length; j++) {
+        for (int j = ignorelength; j < length; j++) {
             if (array[startOffset + j] != symbol[j]) {
                 return false;
             }
