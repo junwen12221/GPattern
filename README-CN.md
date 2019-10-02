@@ -132,7 +132,7 @@ SELECT id FROM {table} LIMIT 1;
 SELECT id FROM travelrecord LIMIT 1;
 ```
 
-可以根据name获得travelrecord
+可以根据table获得travelrecord
 
 
 
@@ -144,7 +144,7 @@ SELECT id FROM travelrecord LIMIT 1;
 SELECT id FROM travelrecord ，travelrecord2 LIMIT 1;
 ```
 
-可以根据name获得
+可以根据table获得
 
 travelrecord ，travelrecord2
 

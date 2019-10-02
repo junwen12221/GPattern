@@ -136,7 +136,7 @@ Pending string
 SELECT id FROM travelrecord LIMIT 1;
 ```
 
-You can get travelrecord according to name
+You can get travelrecord according to 'table'
 
 
 
@@ -148,7 +148,7 @@ Pending string
 SELECT id FROM travelrecord , travelrecord2 LIMIT 1;
 ```
 
-Can be obtained by name
+Can be obtained by 'table'
 
 Travelrecord ,travelrecord2
 
