@@ -8,7 +8,7 @@ Qq:294712221
 
 中文介绍
 
-https://github.com/junwen12221/GPattern/README-CN.md
+https://github.com/junwen12221/GPattern/blob/master/README-CN.md
 
 ## Quick Start
 
