@@ -10,6 +10,11 @@ Qq:294712221
 
 https://github.com/junwen12221/GPattern/blob/master/README-CN.md
 
+
+该库与
+https://github.com/JoanZapata/string-format
+正好互补
+
 ## Quick Start
 
 ```java
